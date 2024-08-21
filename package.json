@@ -1,0 +1,39 @@
+{
+	"name": "multiplayer-game-v2",
+	"version": "1.0.0",
+	"description": "",
+	"main": "dist/server/server.js",
+	"scripts": {
+		"dev:client": "npm run dev:client:typecheck & npm run dev:client:bundle",
+		"dev:client:typecheck": "tsc --noEmit --watch",
+		"dev:client:bundle": "esbuild src/client/index.ts --bundle --outdir=dist/client/ --watch",
+		"dev:server": "ts-node-dev --respawn src/server/server.ts",
+		"dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+		"dev:fakelag": "FAKE_LAG=true concurrently \"npm run dev:client\" \"npm run dev:server\"",
+		"build:client": "tsc --noEmit && esbuild src/client/index.ts --bundle --outdir=dist/client --minify",
+		"build:server": "tsc --project tsconfig.server.json",
+		"build": "npm run build:client && npm run build:server",
+		"start": "NODE_ENV=production node dist/server/server.js",
+		"format": "prettier --write ."
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/express": "^4.17.21",
+		"@types/node": "^22.2.0",
+		"@types/socket.io": "^3.0.2",
+		"concurrently": "^8.2.2",
+		"esbuild": "^0.23.0",
+		"prettier": "^3.3.3",
+		"ts-node-dev": "^2.0.0",
+		"typescript": "^5.5.4"
+	},
+	"dependencies": {
+		"@types/socket.io-client": "^3.0.0",
+		"dotenv": "^16.4.5",
+		"express": "^4.19.2",
+		"socket.io": "^4.7.5",
+		"socket.io-client": "^4.7.5"
+	}
+}
