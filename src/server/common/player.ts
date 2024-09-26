@@ -23,6 +23,8 @@ export class Player {
 	isStopping: boolean;
 	isJumping: boolean;
 
+	timestamp: number;
+
 	constructor(id: string) {
 		this.id = id;
 		this.position = {
@@ -37,6 +39,8 @@ export class Player {
 
 		this.isStopping = false;
 		this.isJumping = true;
+
+		this.timestamp = 0;
 	}
 
 	setPosition(position: { x: number; y: number }) {
@@ -45,7 +49,7 @@ export class Player {
 
 	// woah... javascript treating component x = 0 as !x
 	// must explicitly check for velocity.x !== undefined rather than !velocity.x
-	setVelocity(velocity: { x?: number; y?: number }) {
+	public setVelocity(velocity: { x?: number; y?: number }) {
 		const inputForce = {
 			x: velocity.x !== undefined ? velocity.x : this.velocity.x,
 			y: velocity.y !== undefined ? velocity.y : this.velocity.y,
@@ -53,7 +57,7 @@ export class Player {
 		this.velocity = inputForce;
 	}
 
-	applyForces(deltaTime: number) {
+	public applyForces(deltaTime: number) {
 		if (this.isJumping) {
 			this.applyGravity(deltaTime);
 		}

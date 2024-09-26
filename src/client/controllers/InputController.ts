@@ -9,14 +9,33 @@ function addInputToQueue(input: PlayerInput): void {
 	inputQueue.push(input);
 }
 
+export function getInputQueue(): InputQueue {
+	return inputQueue;
+}
+
 // TODO: Can return an undefined input? Return an error instead?
 export function consumeInputFromQueue(): PlayerInput | undefined {
 	const input = inputQueue.shift();
 	return input;
 }
 
+export function eraseInputQueue(): void {
+	let input = consumeInputFromQueue();
+	while (input) {
+		input = consumeInputFromQueue();
+	}
+}
+
 export function addInputToBuffer(input: RawPlayerInput): void {
 	buffer.push(input);
+}
+
+export function getInputQueueLength(): number {
+	return inputQueue.length;
+}
+
+export function peekInputQueue(): PlayerInput | undefined {
+	return inputQueue[1];
 }
 
 export function processRawInputs(timestamp: number) {

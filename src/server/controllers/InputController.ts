@@ -20,6 +20,9 @@ export function processInputQueue(): void {
 		const player = getPlayer(input.id);
 		if (!player) continue;
 
+		// for client reconciliation - DO NOT base movement on client passed values
+		player.timestamp = input.timestamp;
+
 		// TODO: set player velocty, position, etc based on client input
 		const inputForce: { x?: number; y?: number } = {};
 
@@ -36,7 +39,7 @@ export function processInputQueue(): void {
 				player.isStopping = false;
 				inputForce.x = 1.0 * SPEED;
 				break;
-			case GameEvent.STOP:
+			case GameEvent.STOPPING:
 				// flag to add friction in physics
 				player.isStopping = true;
 				break;

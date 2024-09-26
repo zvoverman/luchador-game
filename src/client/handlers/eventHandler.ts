@@ -1,5 +1,12 @@
 import { RawPlayerInput, GameEvent } from '../common/types';
 import { addInputToBuffer } from '../controllers/InputController';
+import {
+	getShowDebug,
+	setShowDebug,
+	getToggleReconciliation,
+	setToggleReconciliation,
+	unlockFriction,
+} from '../helpers/gameLogic';
 
 const keys = {
 	w: {
@@ -32,6 +39,7 @@ export function handleKeydownEvent(event: KeyboardEvent): void {
 			}
 			keys.w.pressed = true;
 			input.event = GameEvent.JUMP;
+			unlockFriction();
 			break;
 		case 'KeyA':
 			if (keys.a.pressed) {
@@ -39,6 +47,7 @@ export function handleKeydownEvent(event: KeyboardEvent): void {
 			}
 			keys.a.pressed = true;
 			input.event = GameEvent.RUN_LEFT;
+			unlockFriction();
 			break;
 		case 'KeyD':
 			if (keys.d.pressed) {
@@ -46,7 +55,19 @@ export function handleKeydownEvent(event: KeyboardEvent): void {
 			}
 			keys.d.pressed = true;
 			input.event = GameEvent.RUN_RIGHT;
+			unlockFriction();
 			break;
+		case 'KeyP':
+			const currentDebug = getShowDebug();
+			console.log(`show debug turned ${!currentDebug ? 'on' : 'off'}`);
+			setShowDebug(!getShowDebug());
+			break;
+		case 'KeyR':
+			const currentToggle = getToggleReconciliation();
+			console.log(
+				`reconciliation turned ${!currentToggle ? 'on' : 'off'}`
+			);
+			setToggleReconciliation(!currentToggle);
 	}
 	if (!input.event) return;
 	addInputToBuffer(input);
@@ -60,11 +81,15 @@ export function handleKeyupEvent(event: KeyboardEvent): void {
 			break;
 		case 'KeyA':
 			keys.a.pressed = false;
-			input.event = keys.d.pressed ? GameEvent.RUN_RIGHT : GameEvent.STOP;
+			input.event = keys.d.pressed
+				? GameEvent.RUN_RIGHT
+				: GameEvent.STOPPING;
 			break;
 		case 'KeyD':
 			keys.d.pressed = false;
-			input.event = keys.a.pressed ? GameEvent.RUN_LEFT : GameEvent.STOP;
+			input.event = keys.a.pressed
+				? GameEvent.RUN_LEFT
+				: GameEvent.STOPPING;
 			break;
 	}
 	if (!input.event) return;
@@ -72,10 +97,6 @@ export function handleKeyupEvent(event: KeyboardEvent): void {
 }
 
 // mouse
-export function handleMousedownEvent(event: MouseEvent): void {
-	console.log('mouse down!');
-}
+export function handleMousedownEvent(event: MouseEvent): void {}
 
-export function handleMouseupEvent(event: MouseEvent): void {
-	console.log('mouse up!');
-}
+export function handleMouseupEvent(event: MouseEvent): void {}

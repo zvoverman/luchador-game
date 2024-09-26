@@ -16,6 +16,7 @@ export type BackendPlayerState = {
 	height: number;
 	currentHealth: number;
 	playerColor: PlayerColor;
+	timestamp: number;
 };
 
 export type RawPlayerInput = {
@@ -40,5 +41,6 @@ export enum GameEvent {
 	JUMP = 'Jump',
 	RUN_LEFT = 'Run-Left',
 	RUN_RIGHT = 'Run-Right',
-	STOP = 'Stop',
+	STOPPING = 'Stopping',
+	STOPPED = 'Stopped',
 }

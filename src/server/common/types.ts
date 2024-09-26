@@ -23,5 +23,5 @@ export enum GameEvent {
 	JUMP = 'Jump',
 	RUN_LEFT = 'Run-Left',
 	RUN_RIGHT = 'Run-Right',
-	STOP = 'Stop',
+	STOPPING = 'Stopping',
 }

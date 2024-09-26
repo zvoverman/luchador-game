@@ -9,9 +9,12 @@ export let socket: Socket;
 export function setupSocket() {
 	socket = io();
 
-	socket.on('updatePlayers', (playerStates: BackendPlayers) => {
-		handleUpdatePlayers(playerStates);
-	});
+	socket.on(
+		'updatePlayers',
+		(playerStates: BackendPlayers, timestamp: number) => {
+			handleUpdatePlayers(playerStates, timestamp);
+		}
+	);
 
 	socket.on('time-sync', (timestamp: number) => {
 		timeSync(timestamp);

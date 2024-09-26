@@ -6,6 +6,7 @@ import {
 	handleClientDisconnect,
 	handleClientConnect,
 } from './handlers/messageHandler';
+import { FAKE_LAG, LATENCY } from './common/constants';
 
 const io = new SocketIOServer();
 
@@ -29,8 +30,11 @@ export function setupSocket(server: Server) {
 		});
 
 		socket.on('request-time-sync', () => {
+			const delay = FAKE_LAG ? LATENCY : 0;
 			const serverTime = Date.now();
-			socket.emit('time-sync', serverTime);
+			setTimeout(() => {
+				socket.emit('time-sync', serverTime);
+			}, delay);
 		});
 	});
 }
