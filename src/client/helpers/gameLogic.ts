@@ -107,8 +107,8 @@ function serverReconciliation(
 	backEndPlayer: BackendPlayerState,
 	currentTimestamp: number
 ) {
-	let timestep,
-		friction = 0;
+	let timestep: number = 0;
+	let friction: number = 0;
 
 	// Loop through input array
 	const inputQueue = getInputQueue();
@@ -130,9 +130,7 @@ function serverReconciliation(
 				inputQueue[i + 1] === undefined
 					? currentTimestamp
 					: inputQueue[i + 1].timestamp;
-
 			timestep = (now - start) / 1000.0;
-			//console.log('=== ' + start + ' | ' + now);
 		} else {
 			// backend player has not begun processing this input
 			// apply it from state start
@@ -147,25 +145,38 @@ function serverReconciliation(
 
 			switch (input.event) {
 				case GameEvent.STOPPING:
-					if (player.velocity.x === 0) break;
-
+					let speed = 0;
+					/*  Get Direction of Friction  */
 					if (player.velocity.x > 0) {
 						friction = -GROUND_FRICTION;
+						speed = SPEED;
 					} else {
 						friction = GROUND_FRICTION;
+						speed = -SPEED;
 					}
 
-					// check if friction rolls over
-					if (
-						!isFrictionLocked &&
-						isFrictionOver(player.velocity.x, friction, timestep)
-					) {
-						frictionDuration = timestep;
-						isFrictionLocked = true;
-						frictionPosition = player.position;
-					}
+					/*  Get Duration of Friction  */
+					const frictionDuration = -speed / friction;
 
-					break;
+					/*  Calculate Distance Traveled  */
+					const distanceTraveled =
+						timestep > frictionDuration
+							? getDistanceFromTimespan(
+									speed,
+									friction,
+									frictionDuration
+								)
+							: getDistanceFromTimespan(
+									speed,
+									friction,
+									timestep
+								);
+
+					/*  Set Player Position and DO NOT call movePlayer()  */
+					player.position.x += distanceTraveled;
+					movePlayerVertically(player, timestep);
+
+					continue;
 				case GameEvent.JUMP:
 					player.velocity.y = -JUMP_FORCE;
 					//isFrictionOver(player.velocity.x, timestep, friction);
@@ -186,28 +197,30 @@ function serverReconciliation(
 	}
 }
 
+function getDistanceFromTimespan(
+	velocity: number,
+	acceleration: number,
+	timestep: number
+): number {
+	return velocity * timestep + (acceleration / 2) * timestep * timestep;
+}
+
 function movePlayer(player: Player, timestep: number, friction: number) {
 	player.position.y +=
 		timestep * (player.velocity.y + (timestep * GRAVITY_CONSTANT) / 2);
 	player.velocity.y += timestep * GRAVITY_CONSTANT;
 	checkGravity(player);
 
-	if (isFrictionLocked && frictionDuration) {
-		player.position.x =
-			frictionPosition.x +
-			frictionDuration *
-				(player.velocity.x + (frictionDuration * friction) / 2);
-		player.velocity.x = frictionDuration * friction;
-		// player.position.x = frictionPosition.x;
-
-		return;
-	}
-
 	player.position.x +=
 		timestep * (player.velocity.x + (timestep * friction) / 2);
 	player.velocity.x += timestep * friction;
-	// player.velocity.x += friction * timestep;
-	// player.position.x += player.velocity.x * timestep;
+}
+
+function movePlayerVertically(player: Player, timestep: number) {
+	player.position.y +=
+		timestep * (player.velocity.y + (timestep * GRAVITY_CONSTANT) / 2);
+	player.velocity.y += timestep * GRAVITY_CONSTANT;
+	checkGravity(player);
 }
 
 function checkGravity(player: Player) {
@@ -243,7 +256,6 @@ export function timeSync(serverTime: number) {
 	const clientTime = Date.now();
 	const roundTripTime = clientTime - serverTime;
 	timeOffset = serverTime + roundTripTime / 2.0 - clientTime;
-	console.log(timeOffset);
 }
 
 function render(currentTime: number): void {
