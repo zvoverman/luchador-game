@@ -24,6 +24,7 @@ export class Player {
 	isJumping: boolean;
 
 	timestamp: number;
+	timeSinceInput: number;
 
 	constructor(id: string) {
 		this.id = id;
@@ -41,6 +42,7 @@ export class Player {
 		this.isJumping = true;
 
 		this.timestamp = 0;
+		this.timeSinceInput = 0;
 	}
 
 	setPosition(position: { x: number; y: number }) {
@@ -108,6 +110,8 @@ export class Player {
 	}
 
 	move(deltaTime: number) {
+		this.timeSinceInput += deltaTime;
+
 		this.setPosition({
 			x: this.position.x + this.velocity.x * deltaTime,
 			y: this.position.y + this.velocity.y * deltaTime,

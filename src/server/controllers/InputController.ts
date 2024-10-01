@@ -22,6 +22,7 @@ export function processInputQueue(): void {
 
 		// for client reconciliation - DO NOT base movement on client passed values
 		player.timestamp = input.timestamp;
+		player.timeSinceInput = 0;
 
 		// TODO: set player velocty, position, etc based on client input
 		const inputForce: { x?: number; y?: number } = {};

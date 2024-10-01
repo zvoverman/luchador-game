@@ -5,7 +5,6 @@ import {
 	setShowDebug,
 	getToggleReconciliation,
 	setToggleReconciliation,
-	unlockFriction,
 } from '../helpers/gameLogic';
 
 const keys = {
@@ -39,7 +38,6 @@ export function handleKeydownEvent(event: KeyboardEvent): void {
 			}
 			keys.w.pressed = true;
 			input.event = GameEvent.JUMP;
-			unlockFriction();
 			break;
 		case 'KeyA':
 			if (keys.a.pressed) {
@@ -47,7 +45,6 @@ export function handleKeydownEvent(event: KeyboardEvent): void {
 			}
 			keys.a.pressed = true;
 			input.event = GameEvent.RUN_LEFT;
-			unlockFriction();
 			break;
 		case 'KeyD':
 			if (keys.d.pressed) {
@@ -55,7 +52,6 @@ export function handleKeydownEvent(event: KeyboardEvent): void {
 			}
 			keys.d.pressed = true;
 			input.event = GameEvent.RUN_RIGHT;
-			unlockFriction();
 			break;
 		case 'KeyP':
 			const currentDebug = getShowDebug();

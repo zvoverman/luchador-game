@@ -17,6 +17,7 @@ export type BackendPlayerState = {
 	currentHealth: number;
 	playerColor: PlayerColor;
 	timestamp: number;
+	timeSinceInput: number;
 };
 
 export type RawPlayerInput = {
