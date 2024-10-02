@@ -111,15 +111,12 @@ function serverReconciliation(
 	for (let i = 0; i < getInputQueueLength(); i++) {
 		const input = inputQueue[i];
 
-		console.log(input.timestamp + ' | ' + backEndPlayer.timestamp);
-
 		// t2 - t1 = timestep
 		// <now or next input> - <current input> = <time spent in this state so far>
 		if (input.timestamp < backEndPlayer.timestamp) {
 			// backend player has completely processed this input
 			// remove it
 			consumeInputFromQueue();
-			continue;
 		} else if (input.timestamp === backEndPlayer.timestamp) {
 			// backend player is in this state
 			// continue from last authoritative position
@@ -129,6 +126,10 @@ function serverReconciliation(
 					? currentTimestamp
 					: inputQueue[i + 1].timestamp;
 			timestep = (now - start) / 1000.0;
+
+			if (timestep < 0) {
+				timestep = 0;
+			}
 
 			/*  Check if player is not moving - must set timestep to 0 to avoid innacuracies in x-axis movement approximations  */
 			if (player.velocity.x == 0) {
@@ -160,6 +161,10 @@ function serverReconciliation(
 					: inputQueue[i + 1].timestamp;
 
 			timestep = (now - start) / 1000.0;
+
+			if (timestep < 0) {
+				timestep = 0;
+			}
 
 			switch (input.event) {
 				case GameEvent.STOPPING:
@@ -198,17 +203,23 @@ function getDistanceFromTimespan(
 }
 
 function movePlayer(player: Player, timestep: number, friction: number) {
-	player.position.y +=
-		timestep * (player.velocity.y + (timestep * GRAVITY_CONSTANT) / 2);
-	player.velocity.y += timestep * GRAVITY_CONSTANT;
-	checkGravity(player);
+	// move x
+	console.log('BEFORE x: ' + player.position.x);
 
 	const initialSpeed = player.velocity.x;
 	const initialPosition = player.position.x;
 	player.position.x +=
 		timestep * (player.velocity.x + (timestep * friction) / 2);
 	player.velocity.x += timestep * friction;
+
 	checkFriction(player, initialPosition, initialSpeed, timestep, friction);
+	console.log('AFTER x: ' + player.position.x);
+
+	// move y
+	player.position.y +=
+		timestep * (player.velocity.y + (timestep * GRAVITY_CONSTANT) / 2);
+	player.velocity.y += timestep * GRAVITY_CONSTANT;
+	checkGravity(player);
 }
 
 function movePlayerVertically(player: Player, timestep: number) {
@@ -238,10 +249,11 @@ function checkFriction(
 
 	/*  Calculate Distance Traveled  */
 	const distanceTraveled =
-		timestep >= frictionDuration
+		timestep > frictionDuration
 			? getDistanceFromTimespan(initialSpeed, friction, frictionDuration)
 			: getDistanceFromTimespan(initialSpeed, friction, timestep);
 
+	// console.log('here');
 	player.position.x = initialPosition + distanceTraveled;
 	player.velocity.x = 0;
 }

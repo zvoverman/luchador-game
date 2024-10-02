@@ -15,4 +15,4 @@ export const CANVAS_HEIGHT = 576;
 
 /* general constants */
 export const FAKE_LAG = process.env.FAKE_LAG || false;
-export const LATENCY = 500; // ms
+export const LATENCY = 100; // ms
