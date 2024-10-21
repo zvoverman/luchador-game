@@ -12,5 +12,3 @@ export const MAX_HEALTH = 3;
 
 export const CANVAS_WIDTH = 1024;
 export const CANVAS_HEIGHT = 576;
-
-export const TIME_SYNC_INTERVAL = 10000; // 10 seconds

@@ -30,14 +30,14 @@ export class Player {
 	draw(c: CanvasRenderingContext2D): void {
 		c.save();
 
-		// Determine direction based on movement or last direction
+		// determine direction based on movement or last direction
 		if (this.velocity.x > 0) {
 			this.lastDirection = 1;
 		} else if (this.velocity.x < 0) {
 			this.lastDirection = -1;
 		}
 
-		// Flip image calculation based on last direction
+		// flip image calculation based on last direction
 		if (this.lastDirection > 0) {
 			c.scale(1, 1);
 			this.flipX = this.position.x;

@@ -6,6 +6,13 @@ import {
 	Players,
 } from '../common/types';
 
+/**
+ * TODO:
+ *
+ * - Separate BackendPlayerController from PlayerController
+ * - Add methods to set player position and velocity
+ *
+ */
 const frontendPlayers: Players = {};
 let backendPlayers: BackendPlayers = {};
 let backendTime: number = 0.0;

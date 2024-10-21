@@ -1,4 +1,3 @@
-// Import necessary modules and functions
 import { GameCanvas } from '../components/GameCanvas';
 import {
 	addPlayer,
@@ -11,7 +10,6 @@ import {
 import {
 	CANVAS_WIDTH,
 	CANVAS_HEIGHT,
-	TIME_SYNC_INTERVAL,
 	GRAVITY_CONSTANT,
 	SPEED,
 	JUMP_FORCE,
@@ -29,12 +27,10 @@ import {
 import { Player } from '../components/Player';
 import { socket } from './socket';
 import { BackendPlayerState, GameEvent } from '../common/types';
-import { time } from 'console';
 
 let showDebug = false;
 let gameCanvas: GameCanvas;
 let lastRenderTime: number = 0;
-let timeOffset: number = 0;
 
 // initializes canvas and begins main render loop
 export function initializeGame(canvasId: string): void {
@@ -49,11 +45,10 @@ export function initializeGame(canvasId: string): void {
 	requestAnimationFrame(render);
 }
 
-// FIXME: updateGameState is changing backendPlayers
-// EDIT: I think I fixed this... using the spread operator to assign a shallow copy did the trick (e.g. player.velocity = { ...backendPlayer.velocity})
 export function updateGameState(currentTimestamp: number): void {
 	// process raw inputs
 	processRawInputs(currentTimestamp);
+
 	// update players
 	updatePlayers(currentTimestamp);
 }
@@ -78,6 +73,7 @@ export function updatePlayers(currentTimestamp: number): void {
 				player.velocity = { ...backendPlayer.velocity };
 
 				if (toggleServerReconciliation) {
+					// client-side prediction and server reconciliation
 					serverReconciliation(
 						player,
 						backendPlayer,
@@ -310,12 +306,6 @@ function isFrictionOver(
 	} else {
 		return false;
 	}
-}
-
-export function timeSync(serverTime: number) {
-	const clientTime = Date.now();
-	const roundTripTime = clientTime - serverTime;
-	timeOffset = serverTime + roundTripTime / 2.0 - clientTime;
 }
 
 /* RENDER */

@@ -20,9 +20,6 @@ const keys = {
 	d: {
 		pressed: false,
 	},
-	i: {
-		pressed: false,
-	},
 	p: {
 		pressed: false,
 	},
