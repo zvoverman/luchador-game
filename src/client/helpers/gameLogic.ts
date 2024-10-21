@@ -51,10 +51,7 @@ export function initializeGame(canvasId: string): void {
 
 // FIXME: updateGameState is changing backendPlayers
 // EDIT: I think I fixed this... using the spread operator to assign a shallow copy did the trick (e.g. player.velocity = { ...backendPlayer.velocity})
-export function updateGameState(
-	deltaTime: number,
-	currentTimestamp: number
-): void {
+export function updateGameState(currentTimestamp: number): void {
 	// process raw inputs
 	processRawInputs(currentTimestamp);
 	// update players
@@ -98,48 +95,55 @@ export function updatePlayers(currentTimestamp: number): void {
 	}
 }
 
+/**
+ * Predicts client-side movement based on authoratative server state.
+ *
+ * @param player client state
+ * @param backEndPlayer server state
+ * @param currentTimestamp current timestep
+ * @param deltaTime delta time for current loop iteration
+ */
 function serverReconciliation(
 	player: Player,
 	backEndPlayer: BackendPlayerState,
 	currentTimestamp: number
 ) {
-	let timestep: number = 0;
-	let friction: number = 0;
-
-	// Loop through input array
 	const inputQueue = getInputQueue();
 	for (let i = 0; i < getInputQueueLength(); i++) {
 		const input = inputQueue[i];
 
-		// t2 - t1 = timestep
-		// <now or next input> - <current input> = <time spent in this state so far>
+		let timestep: number | null = 0;
+		let friction: number = 0;
+
 		if (input.timestamp < backEndPlayer.timestamp) {
-			// backend player has completely processed this input
-			// remove it
-			consumeInputFromQueue();
+			/* backend player has completely processed this input -> remove it process next input(s) */
+			// consumeInputFromQueue();
 		} else if (input.timestamp === backEndPlayer.timestamp) {
-			// backend player is in this state
-			// continue from last authoritative position
+			/* backend player is in this state -> continue from last authoritative position */
+
+			// calculate time spent in this state
 			const start = input.timestamp + backEndPlayer.timeSinceInput * 1000;
 			const now =
+				// will be undefined but NOT null
 				inputQueue[i + 1] === undefined
 					? currentTimestamp
 					: inputQueue[i + 1].timestamp;
 			timestep = (now - start) / 1000.0;
 
+			// correct outliar timesteps
 			if (timestep < 0) {
 				timestep = 0;
 			}
 
-			/*  Check if player is not moving - must set timestep to 0 to avoid innacuracies in x-axis movement approximations  */
+			// check if player is not moving - must set timestep to 0 to avoid innacuracies in x-axis movement approximations
 			if (player.velocity.x == 0) {
 				movePlayerVertically(player, timestep);
-				timestep = 0.0;
+				timestep = 0;
 			}
 
+			// determine friction
 			switch (input.event) {
 				case GameEvent.STOPPING:
-					/*  Get Direction of Friction  */
 					if (player.velocity.x > 0) {
 						friction = -GROUND_FRICTION;
 					} else {
@@ -151,24 +155,23 @@ function serverReconciliation(
 					break;
 			}
 		} else {
-			// backend player has not begun processing this input
-			// apply it from state start
+			/* backend player has not begun processing this input -> apply it from state start */
+
+			// calculate time spent in this state
 			const start = input.timestamp;
 			const now =
 				// will be undefined but NOT null
 				inputQueue[i + 1] === undefined
 					? currentTimestamp
 					: inputQueue[i + 1].timestamp;
-
 			timestep = (now - start) / 1000.0;
-
-			if (timestep < 0) {
+			if (timestep <= 0) {
 				timestep = 0;
 			}
 
+			// determine friction
 			switch (input.event) {
 				case GameEvent.STOPPING:
-					/*  Get Direction of Friction  */
 					if (player.velocity.x > 0) {
 						friction = -GROUND_FRICTION;
 					} else {
@@ -189,39 +192,61 @@ function serverReconciliation(
 					break;
 			}
 		}
-
 		movePlayer(player, timestep, friction);
 	}
 }
 
+// calculate the distance traveled in a particular timespan based on acceleration and velocity
 function getDistanceFromTimespan(
 	velocity: number,
 	acceleration: number,
 	timestep: number
 ): number {
-	return velocity * timestep + (acceleration / 2) * timestep * timestep;
+	const distance =
+		velocity * timestep + (acceleration / 2) * timestep * timestep;
+	return distance;
 }
 
 function movePlayer(player: Player, timestep: number, friction: number) {
-	// move x
-	console.log('BEFORE x: ' + player.position.x);
+	// copy current player state
+	const initialVelocity = { ...player.velocity };
+	const initialPosition = { ...player.position };
 
-	const initialSpeed = player.velocity.x;
-	const initialPosition = player.position.x;
-	player.position.x +=
+	// calculate new player X position
+	const newPlayerPosition =
+		initialPosition.x +
 		timestep * (player.velocity.x + (timestep * friction) / 2);
-	player.velocity.x += timestep * friction;
+	const newPlayerVelocity = initialVelocity.x + timestep * friction;
 
-	checkFriction(player, initialPosition, initialSpeed, timestep, friction);
-	console.log('AFTER x: ' + player.position.x);
+	// check if friction rolls over
+	const frictionDistance = checkFriction(
+		newPlayerVelocity,
+		initialVelocity.x,
+		timestep,
+		friction
+	);
 
-	// move y
+	// if friction has rolled over, override player X position
+	if (frictionDistance != null) {
+		player.position.x = initialPosition.x + frictionDistance;
+		player.velocity.x = 0.0;
+	} else {
+		// else move player in the X direction
+		player.position.x = newPlayerPosition;
+		player.velocity.x = newPlayerVelocity;
+	}
+
+	// move player Y position
 	player.position.y +=
 		timestep * (player.velocity.y + (timestep * GRAVITY_CONSTANT) / 2);
 	player.velocity.y += timestep * GRAVITY_CONSTANT;
+
+	// check if player has hit the floor
 	checkGravity(player);
 }
 
+// moves player Y position
+// TODO: make movePlayerHorizontally() and call both in movePlayer()
 function movePlayerVertically(player: Player, timestep: number) {
 	player.position.y +=
 		timestep * (player.velocity.y + (timestep * GRAVITY_CONSTANT) / 2);
@@ -229,35 +254,37 @@ function movePlayerVertically(player: Player, timestep: number) {
 	checkGravity(player);
 }
 
+// checks if friction has rolled over and returns the distance travelled with friction in timestep
 function checkFriction(
-	player: Player,
-	initialPosition: number,
-	initialSpeed: number,
+	playerVelocity: number,
+	initialVelocity: number,
 	timestep: number,
 	friction: number
-) {
-	const speed = player.velocity.x;
+): number | null {
+	// check if friction should be accounted for
+	if (friction == 0) return null;
 
-	/*  Check if Friction Should be Accounted For  */
-	if (friction == 0) return;
+	// check if player has stopped
+	if (!isFrictionOver(initialVelocity, playerVelocity)) return null;
 
-	/*  Check if the Player has Stopped  */
-	if (!isFrictionOver(initialSpeed, speed)) return;
+	// get duraction of friction
+	const frictionDuration = -initialVelocity / friction;
 
-	/*  Get Duration of Friction  */
-	const frictionDuration = -initialSpeed / friction;
-
-	/*  Calculate Distance Traveled  */
+	// calculate distance travelled
 	const distanceTraveled =
 		timestep > frictionDuration
-			? getDistanceFromTimespan(initialSpeed, friction, frictionDuration)
-			: getDistanceFromTimespan(initialSpeed, friction, timestep);
+			? getDistanceFromTimespan(
+					initialVelocity,
+					friction,
+					frictionDuration
+				)
+			: getDistanceFromTimespan(initialVelocity, friction, timestep);
 
-	// console.log('here');
-	player.position.x = initialPosition + distanceTraveled;
-	player.velocity.x = 0;
+	return distanceTraveled;
 }
 
+// checks if player has hit the floor and sets player Y position
+// TODO: probably should return a bool and NOT set player Y position directly - do it in movePlayer()?
 function checkGravity(player: Player) {
 	if (!player) return;
 	if (player.position.y + player.height >= CANVAS_HEIGHT) {
@@ -266,6 +293,7 @@ function checkGravity(player: Player) {
 	}
 }
 
+// checks if friction has rolled over using initial velocity and newly calculated velocity
 function isFrictionOver(
 	initialVelocity: number,
 	currentVelocity: number
@@ -286,11 +314,12 @@ export function timeSync(serverTime: number) {
 	timeOffset = serverTime + roundTripTime / 2.0 - clientTime;
 }
 
+/* RENDER */
 function render(currentTime: number): void {
 	const deltaTime = (currentTime - lastRenderTime) / 1000;
 	lastRenderTime = currentTime;
 
-	updateGameState(deltaTime, currentTime);
+	updateGameState(currentTime);
 
 	gameCanvas.context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 

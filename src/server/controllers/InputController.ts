@@ -24,7 +24,6 @@ export function processInputQueue(): void {
 		player.timestamp = input.timestamp;
 		player.timeSinceInput = 0;
 
-		// TODO: set player velocty, position, etc based on client input
 		const inputForce: { x?: number; y?: number } = {};
 
 		switch (input.event) {
@@ -43,6 +42,7 @@ export function processInputQueue(): void {
 			case GameEvent.STOPPING:
 				// flag to add friction in physics
 				player.isStopping = true;
+				inputForce.x = player.velocity.x;
 				break;
 		}
 
