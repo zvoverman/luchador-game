@@ -117,7 +117,11 @@ function serverReconciliation(
 
 		if (input.timestamp < backEndPlayer.timestamp) {
 			/* backend player has completely processed this input -> remove it process next input(s) */
-			// consumeInputFromQueue();
+
+			// consumeInputFromQueue() shifts the inputQueue, i must be decremented
+			consumeInputFromQueue();
+			i--;
+			console.log(inputQueue);
 		} else if (input.timestamp === backEndPlayer.timestamp) {
 			/* backend player is in this state -> continue from last authoritative position */
 
