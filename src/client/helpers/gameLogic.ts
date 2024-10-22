@@ -61,9 +61,11 @@ export function updatePlayers(currentTimestamp: number): void {
 
 		let player = getPlayer(id);
 		if (!player) {
+			const username = localStorage.getItem('username');
 			const newPlayer = new Player(
 				{ ...backendPlayer.position },
-				backendPlayer.playerColor
+				backendPlayer.playerColor,
+				username || ''
 			);
 			addPlayer(id, newPlayer);
 		} else {
@@ -117,7 +119,6 @@ function serverReconciliation(
 			// consumeInputFromQueue() shifts the inputQueue, i must be decremented
 			consumeInputFromQueue();
 			i--;
-			console.log(inputQueue);
 		} else if (input.timestamp === backEndPlayer.timestamp) {
 			/* backend player is in this state -> continue from last authoritative position */
 

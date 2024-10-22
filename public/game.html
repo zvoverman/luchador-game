@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Luchador Battle Royale</title>
+		<style>
+			body {
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+				text-rendering: optimizeLegibility;
+				margin: 0;
+				background-color: #000;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				height: 100vh;
+				color: #ffffff;
+			}
+
+			canvas {
+				width: 1024px;
+				height: 576px;
+				background-color: #f7f1e3;
+				border: 5px solid #c0392b;
+				box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+				background-image: url('/assets/Ring.png'); /* Replace with your own image */
+				background-size: contain;
+				background-position: bottom center;
+			}
+
+			@media (max-width: 1024px) {
+				canvas {
+					width: 90%;
+					height: auto;
+				}
+			}
+		</style>
+		<link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+	</head>
+	<body>
+		<canvas id="game-canvas" width="1024" height="576"></canvas>
+
+		<script src="./js/index.js"></script>
+	</body>
+</html>

@@ -3,44 +3,129 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Luchador Battle Royale</title>
+		<title>Enter Username</title>
 		<style>
 			body {
-				-webkit-font-smoothing: antialiased;
-				-moz-osx-font-smoothing: grayscale;
-				text-rendering: optimizeLegibility;
+				font-family: 'Courier New', Courier, monospace;
+				background-color: #fef9e7;
+				color: #d35400;
 				margin: 0;
-				background-color: #000;
+				padding: 0;
 				display: flex;
-				align-items: center;
 				justify-content: center;
+				align-items: center;
 				height: 100vh;
+				text-align: center;
+			}
+			.container {
+				padding: 20px;
+				border: 5px solid #d35400;
+				background-color: #fff3e0;
+				box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+				width: 300px;
+				text-align: center;
+			}
+			h1 {
+				font-size: 40px;
+				margin-bottom: 20px;
+				color: #e74c3c;
+			}
+			form {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
+			input[type='text'] {
+				width: 80%;
+				padding: 10px;
+				font-size: 16px;
+				border: 2px solid #d35400;
+				border-radius: 5px;
+				margin-bottom: 20px;
+				outline: none;
+				text-align: center;
+			}
+			input[type='text']:focus {
+				border-color: #e67e22;
+			}
+			button {
+				padding: 10px 20px;
+				font-size: 18px;
+				font-weight: bold;
 				color: #ffffff;
+				background-color: #c0392b;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+				transition: background-color 0.3s ease;
 			}
-
-			canvas {
-				width: 1024px;
-				height: 576px;
-				background-color: #f7f1e3;
-				border: 5px solid #c0392b;
-				box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-				background-image: url('/assets/Ring.png'); /* Replace with your own image */
-				background-size: contain;
-				background-position: bottom center;
+			button:hover {
+				background-color: #a93226;
 			}
-
-			@media (max-width: 1024px) {
-				canvas {
-					width: 90%;
-					height: auto;
-				}
+			.luchador {
+				font-size: 20px;
+				color: #e67e22;
+				margin-top: 20px;
+				font-style: italic;
 			}
 		</style>
 		<link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
 	</head>
 	<body>
-		<canvas id="game-canvas" width="1024" height="576"></canvas>
+		<div class="container">
+			<h1>Enter Your Username</h1>
+			<form id="usernameForm" action="/save-username" method="POST">
+				<input
+					type="text"
+					id="username"
+					placeholder="Enter username"
+					required
+				/>
+				<button type="submit">Join Game</button>
+			</form>
+			<p class="luchador">Prepare for the challenge, luchador.</p>
+		</div>
 
-		<script src="./js/index.js"></script>
+		<script>
+			// Clear the username from localStorage on page load
+			document.addEventListener('DOMContentLoaded', () => {
+				localStorage.removeItem('username'); // Clears the specific item
+			});
+
+			// Handle form submission
+			const form = document.getElementById('usernameForm');
+			form.addEventListener('submit', async (event) => {
+				event.preventDefault(); // Prevent the default form submission
+				const username = document.getElementById('username').value;
+
+				try {
+					// Send the POST request to your server
+					const response = await fetch('/save-username', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ username }), // Send the username as JSON
+					});
+
+					// Check if the request was successful
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+
+					// Save the username to localStorage
+					localStorage.setItem('username', username);
+
+					// Redirect to the game page
+					window.location.href = '/game'; // Change this to your game page URL
+				} catch (error) {
+					console.error(
+						'There was a problem with the fetch operation:',
+						error
+					);
+					// Optionally display an error message to the user
+				}
+			});
+		</script>
 	</body>
 </html>

@@ -11,8 +11,13 @@ export class Player {
 	flipX: number;
 	lastDirection: 1 | -1;
 	image: HTMLImageElement;
+	username: string;
 
-	constructor(position: { x: number; y: number }, playerColor: PlayerColor) {
+	constructor(
+		position: { x: number; y: number },
+		playerColor: PlayerColor,
+		username: string
+	) {
 		this.position = position;
 		this.velocity = { x: 0, y: 0 };
 		this.width = PLAYER_WIDTH;
@@ -23,6 +28,7 @@ export class Player {
 		this.lastDirection = 1;
 		this.image = new Image();
 		this.image.src = '../../../assets/Luchadores.png';
+		this.username = username;
 	}
 
 	// drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
@@ -57,6 +63,21 @@ export class Player {
 			this.width,
 			this.height
 		);
+
+		c.restore();
+
+		// Set font properties for the text
+		c.font = '16px Arial'; // Set the font size and family
+		c.fillStyle = '#000000'; // Set the text color
+		c.textAlign = 'center'; // Center align the text
+
+		// Calculate the position for the text above the sprite
+		const textX = this.position.x + this.width / 2; // Center the text above the sprite
+		const textY = this.position.y; // Position it directly above the sprite
+
+		// Draw the text above the sprite
+		c.fillText(this.username, textX, textY - 10); // Adjust '-10' to move text up or down
+
 		c.restore();
 	}
 }
