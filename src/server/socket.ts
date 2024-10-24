@@ -7,6 +7,7 @@ import {
 	handleClientConnect,
 } from './handlers/messageHandler';
 import { FAKE_LAG, LATENCY } from './common/constants';
+import { getPlayer } from './controllers/PlayerController';
 
 const io = new SocketIOServer();
 
@@ -29,12 +30,12 @@ export function setupSocket(server: Server) {
 			handleClientDisconnect(socket.id, reason);
 		});
 
-		socket.on('request-time-sync', () => {
-			const delay = FAKE_LAG ? LATENCY : 0;
-			const serverTime = Date.now();
-			setTimeout(() => {
-				socket.emit('time-sync', serverTime);
-			}, delay);
+		socket.on('setUsername', (data: any) => {
+			const player = getPlayer(socket.id);
+			if (player != undefined) {
+				player.username = data.userInput;
+				console.log(data);
+			}
 		});
 	});
 }

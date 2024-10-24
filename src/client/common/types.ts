@@ -18,6 +18,7 @@ export type BackendPlayerState = {
 	playerColor: PlayerColor;
 	timestamp: number;
 	timeSinceInput: number;
+	username: string;
 };
 
 export type RawPlayerInput = {

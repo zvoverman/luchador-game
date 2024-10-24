@@ -73,6 +73,7 @@ export function updatePlayers(currentTimestamp: number): void {
 				// ensure copies are assigned
 				player.position = { ...backendPlayer.position };
 				player.velocity = { ...backendPlayer.velocity };
+				player.username = backendPlayer.username;
 
 				if (toggleServerReconciliation) {
 					// client-side prediction and server reconciliation
@@ -88,6 +89,7 @@ export function updatePlayers(currentTimestamp: number): void {
 				// ensure copies are assigned
 				player.position = { ...backendPlayer.position };
 				player.velocity = { ...backendPlayer.velocity };
+				player.username = backendPlayer.username;
 			}
 		}
 	}

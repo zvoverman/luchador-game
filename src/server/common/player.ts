@@ -19,6 +19,7 @@ export class Player {
 	height: number;
 	currentHealth: number;
 	playerColor: PlayerColor;
+	username: string | null;
 
 	isStopping: boolean;
 	isJumping: boolean;
@@ -37,6 +38,7 @@ export class Player {
 		this.height = PLAYER_HEIGHT;
 		this.currentHealth = MAX_HEALTH;
 		this.playerColor = Math.floor(Math.random() * 4);
+		this.username = null;
 
 		this.isStopping = false;
 		this.isJumping = true;
