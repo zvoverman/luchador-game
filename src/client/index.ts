@@ -42,20 +42,18 @@ function setUsername() {
 	) as HTMLInputElement;
 
 	if (usernameElement === null) {
-		console.error('Usernam element cannot be found in the DOM');
+		console.error('Username element cannot be found in the DOM');
 		return false;
 	}
 
 	const userInput: string = usernameElement.value;
 
-	console.log(userInput);
-
-	displayGame();
+	if (userInput === '' || userInput === null) return;
 
 	emitMessage('setUsername', { userInput });
 }
 
-function displayGame() {
+export function displayGame() {
 	// Hide the username screen and show the game screen
 	const usernameScreen = document.getElementById('usernameScreen');
 	if (usernameScreen != null) {

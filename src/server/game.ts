@@ -22,7 +22,7 @@ export function gameLoop(): void {
 	// physics(nowTs, deltaTime); // Calculate backend state
 
 	// send authoritative state to clients
-	emitMessage('updatePlayers', getPlayers());
+	emitMessage('updatePlayers', getPlayers(), 'game');
 }
 
 function physics(dt: number) {

@@ -1,5 +1,8 @@
 import io, { Socket } from 'socket.io-client';
-import { handleUpdatePlayers } from '../handlers/playerHandler';
+import {
+	handleUpdatePlayers,
+	handleSetUsernameResponse,
+} from '../handlers/playerHandler';
 import { BackendPlayers } from '../common/types';
 export let socket: Socket;
 
@@ -12,6 +15,10 @@ export function setupSocket() {
 			handleUpdatePlayers(playerStates, timestamp);
 		}
 	);
+
+	socket.on('setUsername', (data: any) => {
+		handleSetUsernameResponse(data, socket.id);
+	});
 
 	console.log('Socket set up successfully');
 }

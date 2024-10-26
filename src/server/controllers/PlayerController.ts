@@ -3,12 +3,12 @@ import { Players } from '../common/types';
 
 const backEndPlayers: Players = {};
 
-export function addPlayer(playerId: string): boolean {
+export function addPlayer(playerId: string, playerUsername: string): boolean {
 	if (backEndPlayers[playerId]) {
 		console.error(`Player with ID ${playerId} already exists.`);
 		return false;
 	}
-	const player = new Player(playerId);
+	const player = new Player(playerId, playerUsername);
 	backEndPlayers[player.id] = player;
 	console.log(`Player ${player.id} added.`);
 	return true;

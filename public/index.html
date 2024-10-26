@@ -11,12 +11,14 @@
 				-moz-osx-font-smoothing: grayscale;
 				text-rendering: optimizeLegibility;
 				margin: 0;
-				background-color: #000;
+				background-color: #2c3e50;
 				display: flex;
 				align-items: center;
 				justify-content: center;
 				height: 100vh;
 				color: #ffffff;
+				font-family: 'Arial', sans-serif;
+				line-height: 1.6;
 			}
 			/* Username screen styling */
 			.container {
@@ -24,11 +26,12 @@
 				border: 5px solid #d35400;
 				background-color: #fff3e0;
 				box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-				width: 300px;
+				width: 500px;
 				text-align: center;
+				border-radius: 10px;
 			}
 			h1 {
-				font-size: 40px;
+				font-size: 2em;
 				margin-bottom: 20px;
 				color: #e74c3c;
 			}
@@ -40,7 +43,7 @@
 			input[type='text'] {
 				width: 80%;
 				padding: 10px;
-				font-size: 16px;
+				font-size: 1em;
 				border: 2px solid #d35400;
 				border-radius: 5px;
 				margin-bottom: 20px;
@@ -52,7 +55,7 @@
 			}
 			button {
 				padding: 10px 20px;
-				font-size: 18px;
+				font-size: 1.1em;
 				font-weight: bold;
 				color: #ffffff;
 				background-color: #c0392b;
@@ -65,7 +68,7 @@
 				background-color: #a93226;
 			}
 			.luchador {
-				font-size: 20px;
+				font-size: 1em;
 				color: #e67e22;
 				margin-top: 20px;
 				font-style: italic;
@@ -75,8 +78,9 @@
 				display: none;
 			}
 			canvas {
-				width: 1024px;
-				height: 576px;
+				width: 100%;
+				height: auto;
+				max-width: 1024px;
 				background-color: #f7f1e3;
 				border: 5px solid #c0392b;
 				box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
@@ -86,8 +90,7 @@
 			}
 			@media (max-width: 1024px) {
 				canvas {
-					width: 90%;
-					height: auto;
+					width: 90%; /* Responsive canvas width */
 				}
 			}
 		</style>

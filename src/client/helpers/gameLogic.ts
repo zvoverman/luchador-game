@@ -61,16 +61,16 @@ export function updatePlayers(currentTimestamp: number): void {
 
 		let player = getPlayer(id);
 		if (!player) {
-			const username = localStorage.getItem('username');
 			const newPlayer = new Player(
 				{ ...backendPlayer.position },
 				backendPlayer.playerColor,
-				username || ''
+				backendPlayer.username
 			);
 			addPlayer(id, newPlayer);
 		} else {
 			if (id === socket.id) {
 				// ensure copies are assigned
+				// TODO: implement separate copy function
 				player.position = { ...backendPlayer.position };
 				player.velocity = { ...backendPlayer.velocity };
 				player.username = backendPlayer.username;

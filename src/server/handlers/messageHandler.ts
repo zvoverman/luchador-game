@@ -11,7 +11,6 @@ import { FAKE_LAG, LATENCY } from '../common/constants';
 
 export function handleClientConnect(id: string) {
 	console.log('A user connected: ' + id);
-	addPlayer(id);
 }
 
 export function handleClientInput(id: string, input: PlayerInput) {
@@ -26,5 +25,9 @@ export function handleClientInput(id: string, input: PlayerInput) {
 export function handleClientDisconnect(id: string, reason: DisconnectReason) {
 	console.log('User disconnected:', reason);
 	removePlayer(id);
-	emitMessage('updatePlayers', { state: getPlayers(), time: Date.now() });
+	emitMessage(
+		'updatePlayers',
+		{ state: getPlayers(), time: Date.now() },
+		'game'
+	);
 }

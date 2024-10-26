@@ -27,7 +27,7 @@ export class Player {
 	timestamp: number;
 	timeSinceInput: number;
 
-	constructor(id: string) {
+	constructor(id: string, username: string) {
 		this.id = id;
 		this.position = {
 			x: randNumberInRange(100 - PLAYER_WIDTH, CANVAS_WIDTH - 100),
@@ -38,7 +38,7 @@ export class Player {
 		this.height = PLAYER_HEIGHT;
 		this.currentHealth = MAX_HEALTH;
 		this.playerColor = Math.floor(Math.random() * 4);
-		this.username = null;
+		this.username = username;
 
 		this.isStopping = false;
 		this.isJumping = true;
