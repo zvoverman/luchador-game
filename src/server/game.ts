@@ -19,8 +19,6 @@ export function gameLoop(): void {
 
 	physics(deltaTime);
 
-	// physics(nowTs, deltaTime); // Calculate backend state
-
 	// send authoritative state to clients
 	emitMessage('updatePlayers', getPlayers(), 'game');
 }

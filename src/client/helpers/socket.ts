@@ -24,7 +24,7 @@ export function setupSocket() {
 }
 
 export function emitMessage(eventName: string, data: any) {
-	if (!socket) {
+	if (!socket || !socket.id) {
 		console.error('Socket is not initialized.');
 		return;
 	}

@@ -7,6 +7,7 @@ import { FAKE_LAG, LATENCY } from './common/constants';
 const server = http.createServer(app);
 setupSocket(server);
 
+// FIXME: Only start gameLoop once player is within the game
 setInterval(gameLoop, 15); // 60 fps
 
 const PORT = process.env.PORT || 3000;

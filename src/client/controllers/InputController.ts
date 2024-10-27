@@ -1,6 +1,7 @@
 import { InputQueue, PlayerInput, RawPlayerInput } from '../common/types';
 import { Player } from '../components/Player';
-import { emitMessage } from '../helpers/socket';
+import { emitMessage, socket } from '../helpers/socket';
+import { getPlayers } from './PlayerController';
 
 const inputQueue: InputQueue = [];
 let buffer: Array<RawPlayerInput> = [];
@@ -27,6 +28,14 @@ export function eraseInputQueue(): void {
 }
 
 export function addInputToBuffer(input: RawPlayerInput): void {
+	// disregard input if socket does not exist
+	if (!socket || !socket.id) return;
+
+	// disregard input if player or their respective username do not exist
+	const players = getPlayers();
+	const player = players[socket.id];
+	if (!player || !players[socket.id].username) return;
+
 	buffer.push(input);
 }
 
