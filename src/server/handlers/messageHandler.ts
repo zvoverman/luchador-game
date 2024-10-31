@@ -49,9 +49,5 @@ export function handleClientInput(id: string, unfilteredInput: any) {
 export function handleClientDisconnect(id: string, reason: DisconnectReason) {
 	console.log('User disconnected:', reason);
 	removePlayer(id);
-	emitMessage(
-		'updatePlayers',
-		{ state: getPlayers(), time: Date.now() },
-		'game'
-	);
+	emitMessage('removePlayer', { id }, 'game');
 }

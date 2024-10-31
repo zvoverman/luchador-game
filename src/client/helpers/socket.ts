@@ -5,6 +5,7 @@ import {
 } from '../handlers/playerHandler';
 import { BackendPlayers } from '../common/types';
 import { displayError } from '..';
+import { removePlayer } from '../controllers/PlayerController';
 export let socket: Socket;
 
 export function setupSocket() {
@@ -25,6 +26,12 @@ export function setupSocket() {
 		const errorMessage = err?.message || 'An error has occured';
 		console.log(errorMessage);
 		displayError();
+	});
+
+	socket.on('removePlayer', (data: any) => {
+		const id = data?.id;
+		if (!id) return;
+		removePlayer(id);
 	});
 
 	console.log('Socket set up successfully');
