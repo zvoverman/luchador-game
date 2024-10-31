@@ -47,7 +47,7 @@ export function setupSocket(server: Server) {
 		/**
 		 * Socket Events from Client
 		 */
-		socket.on('sendInput', (input: PlayerInput) => {
+		socket.on('sendInput', (input: any) => {
 			// only handle client input if they have joined the 'game' room
 			if (socket.rooms.has('game')) {
 				handleClientInput(socket.id, input);
