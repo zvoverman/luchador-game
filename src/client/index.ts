@@ -9,6 +9,7 @@ initializeGame('game-canvas');
 document.addEventListener('DOMContentLoaded', () => {
 	console.log('DOM fully loaded and parsed');
 	initializeEventListeners();
+	hideError();
 
 	const joinButton = document.getElementById('usernameButton');
 	if (joinButton) {
@@ -54,6 +55,9 @@ function setUsername() {
 }
 
 export function displayGame() {
+	// Hide error message if shown
+	hideError();
+
 	// Hide the username screen and show the game screen
 	const usernameScreen = document.getElementById('usernameScreen');
 	if (usernameScreen != null) {
@@ -63,5 +67,19 @@ export function displayGame() {
 	const gameScreen = document.getElementById('gameScreen');
 	if (gameScreen != null) {
 		gameScreen.style.display = 'block';
+	}
+}
+
+export function displayError() {
+	const errorMessage = document.getElementById('errorMessage');
+	if (errorMessage != null) {
+		errorMessage.style.display = 'block';
+	}
+}
+
+export function hideError() {
+	const errorMessage = document.getElementById('errorMessage');
+	if (errorMessage != null) {
+		errorMessage.style.display = 'none';
 	}
 }

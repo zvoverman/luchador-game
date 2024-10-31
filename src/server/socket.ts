@@ -6,14 +6,16 @@ import {
 	handleClientDisconnect,
 	handleClientConnect,
 } from './handlers/messageHandler';
-import { FAKE_LAG, LATENCY } from './common/constants';
 import {
 	addPlayer,
 	getPlayer,
 	getPlayers,
 } from './controllers/PlayerController';
+import { MAX_CLIENT_CAPACITY } from './common/constants';
 
 const io = new SocketIOServer();
+
+let socketCount: number = 0;
 
 export function setupSocket(server: Server) {
 	io.attach(server, {
@@ -24,13 +26,31 @@ export function setupSocket(server: Server) {
 	});
 
 	io.on('connection', (socket: Socket) => {
+		socketCount++;
 		handleClientConnect(socket.id);
 
+		// maximum number of players has been reached, disconnect any new socket connections
+		if (socketCount > MAX_CLIENT_CAPACITY) {
+			console.log('Maximum number of clients connected');
+			emitMessage(
+				'error',
+				{
+					message: 'maximum number of players reached',
+				},
+				socket.id
+			);
+			// must decrement socketCount outside socket.on('disconnect') because disconnection from the server does not send an event
+			socketCount--;
+			socket.disconnect();
+		}
+
+		/**
+		 * Socket Events from Client
+		 */
 		socket.on('sendInput', (input: PlayerInput) => {
-			// only handle client input if they have joined a game
+			// only handle client input if they have joined the 'game' room
 			if (socket.rooms.has('game')) {
 				handleClientInput(socket.id, input);
-				console.log('receiving input');
 			}
 		});
 
@@ -51,8 +71,6 @@ export function setupSocket(server: Server) {
 
 			console.log(getPlayer(socket.id));
 
-			// send newly created player to client
-
 			// send sanitized username back to client
 			emitMessage(
 				'setUsername',
@@ -62,6 +80,7 @@ export function setupSocket(server: Server) {
 		});
 
 		socket.on('disconnect', (reason: DisconnectReason) => {
+			socketCount--;
 			handleClientDisconnect(socket.id, reason);
 		});
 

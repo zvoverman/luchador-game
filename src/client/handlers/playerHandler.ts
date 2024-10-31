@@ -15,17 +15,7 @@ export interface setUsernameResponseInterface {
 	time: number;
 }
 
-export function handleSetUsernameResponse(
-	data: setUsernameResponseInterface,
-	id: string | undefined
-) {
-	/**
-	 * FIXME: Backend player still recieves input and moves accordingly...
-	 *
-	 * While user is on username input screen, they should NOT be able to move.
-	 * Only once the game is displayed should the server begin listening for input.
-	 */
-
+export function handleSetUsernameResponse(data: setUsernameResponseInterface) {
 	const playerStates: BackendPlayers = data.state;
 	const backendTime: number = data.time;
 

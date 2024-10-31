@@ -4,6 +4,7 @@ import {
 	handleSetUsernameResponse,
 } from '../handlers/playerHandler';
 import { BackendPlayers } from '../common/types';
+import { displayError } from '..';
 export let socket: Socket;
 
 export function setupSocket() {
@@ -17,7 +18,13 @@ export function setupSocket() {
 	);
 
 	socket.on('setUsername', (data: any) => {
-		handleSetUsernameResponse(data, socket.id);
+		handleSetUsernameResponse(data);
+	});
+
+	socket.on('error', (err: any) => {
+		const errorMessage = err?.message || 'An error has occured';
+		console.log(errorMessage);
+		displayError();
 	});
 
 	console.log('Socket set up successfully');
