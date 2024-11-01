@@ -27,6 +27,8 @@ To achieve this, the game's architecture employs the following concepts:
 
 **Socket.io and Speed**: While Socket.io simplifies real-time communication, it’s limited in speed due to its WebSocket and fallback-based architecture. Ideally, this game would use a custom packet protocol over UDP for optimal performance, but that is out of this project’s scope.
 
+## Getting Started
+
 ### Prerequisites
 
 -   **Node.js** (v20 or later recommended)
