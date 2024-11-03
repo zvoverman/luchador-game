@@ -11,9 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	initializeEventListeners();
 	hideError();
 
-	const joinButton = document.getElementById('usernameButton');
-	if (joinButton) {
-		joinButton.addEventListener('click', setUsername);
+	const usernameFormElement = document.getElementById('usernameForm');
+	if (usernameFormElement) {
+		usernameFormElement.addEventListener('submit', setUsername);
 	}
 
 	// Load the username from localStorage if available
@@ -23,21 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // setup socket connections and listen for server messages
 setupSocket();
 
-/**
- *
- * USERNAME INPUT CODE
- *
- *
- *
- *
- *
- *
- *
- *
- *
- */
+// Username Input Code
+function setUsername(e: SubmitEvent) {
+	// don't refresh page on form submission
+	e.preventDefault();
 
-function setUsername() {
 	const usernameElement: HTMLInputElement | null = document.getElementById(
 		'username'
 	) as HTMLInputElement;
