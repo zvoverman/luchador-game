@@ -4,19 +4,17 @@ Responsive server-authoritative game architecture written in TypeScript.
 
 ## About
 
-Luchador Game is a server-authoritative, 2D multiplayer fighting game that aims to provide smooth and responsive gameplay across high-latency networks. Set in a lucha libre-inspired world, players battle using real-time physics with friction and gravity, all managed by a TypeScript-based server.
-
 ### Technologies
 
--   [Node.js](https://nodejs.org/en): Backend framework for the server.
--   [Express](https://expressjs.com/): Middleware for serving static files.
--   [Socket.io](https://socket.io/): Manages real-time, bidirectional communication between client and server.
+-   [Node.js](https://nodejs.org/en)
+-   [Express](https://expressjs.com/)
+-   [Socket.io](https://socket.io/)
 
 ### Design Philosophy
 
-> **Objective: Build a server-authoritative game that maintains smooth, responsive movement, even over high-latency networks.**
+> **Objective: Build a server-authoritative game architecture that maintains smooth, responsive movement, even over high-latency networks.**
 
-To achieve this, the game's architecture employs the following concepts:
+To achieve this, the game employs the following concepts:
 
 -   **Server Authoritative Gameplay**: The server validates and controls all game state, ensuring fair and consistent play.
 -   **Server Reconciliation**: Corrects discrepancies between the client and server states by adjusting the client's view.
@@ -25,14 +23,14 @@ To achieve this, the game's architecture employs the following concepts:
 
 ### Disclaimers
 
-**Socket.io and Speed**: While Socket.io simplifies real-time communication, it’s limited in speed due to its WebSocket and fallback-based architecture. Ideally, this game would use a custom packet protocol over UDP for optimal performance, but that is out of this project’s scope.
+**Socket.io and Speed**: While Socket.io simplifies real-time communication, it has speed limitations. Ideally, this game would use a custom UDP-based protocol for optimal performance, but that is beyond the scope of this project.
 
 ## Getting Started
 
 ### Prerequisites
 
--   **Node.js** (v20 or later recommended)
--   **npm** (Node package manager, included with Node.js)
+-   [**Node.js**](https://nodejs.org/en)
+-   [**npm**](https://www.npmjs.com/)
 
 To check if these are installed, run:
 
@@ -58,8 +56,6 @@ npm -v
 
 ### Running the Application Locally
 
-This project has various `npm` scripts for development, production, and testing environments.
-
 #### Development Build
 
 For development, use the following command to run both the server and client with hot-reloading:
@@ -81,8 +77,6 @@ To simulate network latency during development, run:
 npm run dev:fakelag
 ```
 
-This command sets the `FAKE_LAG=true` environment variable, which you can use in your server code to introduce artificial delays.
-
 #### Production Build
 
 To build and run the application in production mode:
@@ -93,18 +87,11 @@ To build and run the application in production mode:
     npm run build
     ```
 
-    This command does the following:
-
-    - Type-checks the client code and bundles it with `esbuild` into the `dist/client` folder.
-    - Compiles the server code into the `dist/server` folder using the `tsconfig.server.json` configuration file.
-
 2. **Run the production server**:
 
     ```bash
     npm run start
     ```
-
-    This script sets `NODE_ENV=production` and starts the server from the `dist/server/server.js` file.
 
 #### Access the Game
 
