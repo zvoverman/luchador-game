@@ -44,6 +44,8 @@ export function setupSocket(server: Server) {
 			socket.disconnect();
 		}
 
+		emitMessage('connected', {}, socket.id);
+
 		/**
 		 * Socket Events from Client
 		 */
@@ -98,7 +100,11 @@ export function emitMessage(eventName: string, data: any, room?: string) {
 	io.to(room).emit(eventName, data);
 }
 
-function sanitizeUserInput(userInput: string): string | null {
+function sanitizeUserInput(userInput: string | null): string | null {
+	if (userInput === null || userInput === undefined) {
+		return null;
+	}
+
 	// espace HTML special characters to prevent XSS (Cross-Site Scripting) attacks
 	const usernameEscapeHTML = sanitizeHTML(userInput.trim());
 

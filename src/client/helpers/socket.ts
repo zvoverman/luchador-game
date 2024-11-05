@@ -4,7 +4,7 @@ import {
 	handleSetUsernameResponse,
 } from '../handlers/playerHandler';
 import { BackendPlayers } from '../common/types';
-import { displayError } from '..';
+import { displayError, displayUsernameScreen } from '..';
 import { removePlayer } from '../controllers/PlayerController';
 export let socket: Socket;
 
@@ -34,12 +34,28 @@ export function setupSocket() {
 		removePlayer(id);
 	});
 
-	console.log('Socket set up successfully');
+	socket.on('connected', () => {
+		console.log('Socket set up successfully');
+
+		displayUsernameScreen();
+
+		// Load username from sessionStorage if available
+		const savedUsername = sessionStorage.getItem('username')?.trim();
+
+		// double check session storage isn't malicious
+		if (savedUsername) {
+			emitMessage('setUsername', { userInput: savedUsername }); // FIXME: type all emit messages and socket.on to verify correct input/output is sent/received
+			console.log(
+				'username in sessionStorage available: ',
+				savedUsername
+			);
+		}
+	});
 }
 
 export function emitMessage(eventName: string, data: any) {
 	if (!socket || !socket.id) {
-		console.error('Socket is not initialized.');
+		console.error('Socket is not initialized.', socket);
 		return;
 	}
 	socket.emit(eventName, data);

@@ -2,6 +2,9 @@ import { emitMessage, setupSocket } from './helpers/socket';
 import { initializeGame } from './helpers/gameLogic';
 import { initializeEventListeners } from './helpers/eventListener';
 
+// setup socket connections and listen for server messages
+setupSocket();
+
 // start the game!
 initializeGame('game-canvas');
 
@@ -15,13 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (usernameFormElement) {
 		usernameFormElement.addEventListener('submit', setUsername);
 	}
-
-	// Load the username from localStorage if available
-	const savedUsername = localStorage.getItem('username');
 });
-
-// setup socket connections and listen for server messages
-setupSocket();
 
 // Username Input Code
 function setUsername(e: SubmitEvent) {
@@ -49,21 +46,45 @@ export function displayGame() {
 	hideError();
 
 	// Hide the username screen and show the game screen
+	hideUsernameScreen();
+	displayGameScreen();
+}
+
+/**
+ * 		Display/Hide DOM Elements
+ */
+export function displayUsernameScreen() {
+	const usernameScreen = document.getElementById('usernameScreen');
+	if (usernameScreen != null) {
+		usernameScreen.style.display = 'block';
+	}
+}
+
+export function hideUsernameScreen() {
 	const usernameScreen = document.getElementById('usernameScreen');
 	if (usernameScreen != null) {
 		usernameScreen.style.display = 'none';
 	}
+}
 
+export function displayGameScreen() {
 	const gameScreen = document.getElementById('gameScreen');
 	if (gameScreen != null) {
-		gameScreen.style.display = 'block';
+		gameScreen.style.display = 'flex';
+	}
+}
+
+export function hideGameScreen() {
+	const gameScreen = document.getElementById('gameScreen');
+	if (gameScreen != null) {
+		gameScreen.style.display = 'none';
 	}
 }
 
 export function displayError() {
 	const errorMessage = document.getElementById('errorMessage');
 	if (errorMessage != null) {
-		errorMessage.style.display = 'block';
+		errorMessage.style.display = 'flex';
 	}
 }
 
