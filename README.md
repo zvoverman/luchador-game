@@ -25,7 +25,7 @@ To achieve this, the game employs the following concepts:
 
 **Socket.io and Speed**: While Socket.io simplifies real-time communication, it has speed limitations. Ideally, this game would use a custom UDP-based protocol for optimal performance, but that is beyond the scope of this project.
 
-## Getting Started
+## Development
 
 ### Prerequisites
 
@@ -97,6 +97,6 @@ To build and run the application in production mode:
 
 After running either the development or production build, you can access the game in your browser at: http://localhost:3000
 
-### Deployment
+## Deployment
 
-COMING SOON
+...
