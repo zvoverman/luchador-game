@@ -38,7 +38,7 @@ function setUsername(e: SubmitEvent) {
 
 	if (userInput === '' || userInput === null) return;
 
-	emitMessage('setUsername', { userInput });
+	emitMessage('validateUsername', { userInput });
 }
 
 export function displayGame() {

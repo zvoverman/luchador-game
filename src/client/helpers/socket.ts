@@ -44,7 +44,7 @@ export function setupSocket() {
 
 		// double check session storage isn't malicious
 		if (savedUsername) {
-			emitMessage('setUsername', { userInput: savedUsername }); // FIXME: type all emit messages and socket.on to verify correct input/output is sent/received
+			emitMessage('validateUsername', { userInput: savedUsername }); // FIXME: type all emit messages and socket.on to verify correct input/output is sent/received
 			console.log(
 				'username in sessionStorage available: ',
 				savedUsername
