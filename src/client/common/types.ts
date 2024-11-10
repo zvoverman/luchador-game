@@ -46,3 +46,37 @@ export enum GameEvent {
 	STOPPING = 'Stopping',
 	STOPPED = 'Stopped',
 }
+
+/**
+ * 	Client -> Server
+ */
+
+export enum ClientToServerEvent {
+	PROCESS_CLIENT_INPUT = 'processClientInput',
+	VALIDATE_USERNAME = 'validateUsername',
+}
+
+export interface ClientToServerEvents {
+	[ClientToServerEvent.PROCESS_CLIENT_INPUT]: ProcessClientInputPayload;
+	[ClientToServerEvent.VALIDATE_USERNAME]: ValidateUsernamePayload;
+}
+
+export interface ProcessClientInputPayload {
+	input: PlayerInput;
+}
+
+export interface ValidateUsernamePayload {
+	userInput: string;
+}
+
+/**
+ *  Server -> Client
+ */
+
+export enum ServerToClientEvent {
+	UPDATE_GAME_STATE = 'updateGameState',
+	REMOVE_PLAYER = 'removePlayer',
+	ERROR = 'error',
+	CONNECTED = 'connected',
+	SET_USERNAME = 'setUsername',
+}

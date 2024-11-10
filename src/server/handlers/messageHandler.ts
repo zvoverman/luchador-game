@@ -1,6 +1,6 @@
 import { DisconnectReason } from 'socket.io';
 import { emitMessage } from '../socket';
-import { GameEvent, PlayerInput } from '../common/types';
+import { GameEvent, PlayerInput, ServerToClientEvent } from '../common/types';
 import {
 	removePlayer,
 	getPlayers,
@@ -55,7 +55,7 @@ export function handleValidateUsername(socket: Socket, input: any) {
 	const userInput = input.userInput;
 
 	// sanitize user input
-	const username = sanitizeUserInput(userInput) || 'guest fighter';
+	const username = sanitizeUserInput(userInput);
 
 	// set new player's username
 	if (username != null && socket.id != null) {
@@ -70,7 +70,7 @@ export function handleValidateUsername(socket: Socket, input: any) {
 
 	// send sanitized username back to client
 	emitMessage(
-		'setUsername',
+		ServerToClientEvent.SET_USERNAME,
 		{ username, state: getPlayers(), time: Date.now() },
 		socket.id
 	);
@@ -80,14 +80,14 @@ export function handleValidateUsername(socket: Socket, input: any) {
 export function handleClientDisconnect(id: string, reason: DisconnectReason) {
 	console.log('User disconnected:', reason);
 	removePlayer(id);
-	emitMessage('removePlayer', { id }, 'game');
+	emitMessage(
+		ServerToClientEvent.REMOVE_PLAYER,
+		{ playerToRemove: id, state: getPlayers(), time: Date.now() },
+		'game'
+	);
 }
 
-function sanitizeUserInput(userInput: string | null): string | null {
-	if (userInput === null || userInput === undefined) {
-		return null;
-	}
-
+function sanitizeUserInput(userInput: string): string | null {
 	// espace HTML special characters to prevent XSS (Cross-Site Scripting) attacks
 	const usernameEscapeHTML = sanitizeHTML(userInput.trim());
 

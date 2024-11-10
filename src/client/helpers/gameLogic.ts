@@ -1,9 +1,7 @@
 import { GameCanvas } from '../components/GameCanvas';
 import {
 	addPlayer,
-	getBackendPlayer,
 	getBackendPlayers,
-	getBackendTime,
 	getPlayer,
 	getPlayers,
 } from '../controllers/PlayerController';

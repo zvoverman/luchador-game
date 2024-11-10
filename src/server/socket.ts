@@ -7,6 +7,12 @@ import {
 	handleValidateUsername,
 } from './handlers/messageHandler';
 import { MAX_CLIENT_CAPACITY } from './common/constants';
+import {
+	PlayerInput,
+	ServerToClientEvent,
+	ServerToClientEvents,
+	ClientToServerEvent,
+} from './common/types';
 
 const io = new SocketIOServer();
 
@@ -32,7 +38,7 @@ export function setupSocket(server: Server) {
 		if (socketCount > MAX_CLIENT_CAPACITY) {
 			console.log('Maximum number of clients connected');
 			emitMessage(
-				'error',
+				ServerToClientEvent.ERROR,
 				{
 					message: 'maximum number of players reached',
 				},
@@ -43,22 +49,23 @@ export function setupSocket(server: Server) {
 			socket.disconnect();
 		}
 
-		emitMessage('connected', {}, socket.id);
+		emitMessage(ServerToClientEvent.CONNECTED, {}, socket.id);
 
 		/**
 		 *   Socket Events from Client
 		 */
 
 		// recieve new inputs from client
-		socket.on('sendInput', (input: any) => {
+		socket.on(ClientToServerEvent.PROCESS_CLIENT_INPUT, (data: any) => {
 			// only handle client input if they have joined the 'game' room
-			if (socket.rooms.has('game')) {
-				handleClientInput(socket.id, input);
-			}
+			if (!socket.rooms.has('game')) return;
+
+			const input: PlayerInput = data.input;
+			handleClientInput(socket.id, input);
 		});
 
 		// validate client entered username
-		socket.on('validateUsername', (input: any) => {
+		socket.on(ClientToServerEvent.VALIDATE_USERNAME, (input: any) => {
 			handleValidateUsername(socket, input);
 		});
 
@@ -77,10 +84,14 @@ export function setupSocket(server: Server) {
  * @param data - json data to send to client
  * @param room - room to emit message to
  */
-export function emitMessage(eventName: string, data: any, room?: string) {
+export function emitMessage<T extends ServerToClientEvent>(
+	eventName: T,
+	data: ServerToClientEvents[T],
+	room?: string
+) {
 	if (room === undefined || room === null) {
 		io.emit(eventName, data);
-		return;
+	} else {
+		io.to(room).emit(eventName, data);
 	}
-	io.to(room).emit(eventName, data);
 }

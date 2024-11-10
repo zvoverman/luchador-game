@@ -1,5 +1,5 @@
 import { Player } from './common/player';
-import { PlayerInput } from './common/types';
+import { PlayerInput, ServerToClientEvent } from './common/types';
 import { emitMessage } from './socket';
 import { getPlayers } from './controllers/PlayerController';
 import { processInputQueue } from './controllers/InputController';
@@ -20,7 +20,11 @@ export function gameLoop(): void {
 	physics(deltaTime);
 
 	// send authoritative state to clients
-	emitMessage('updatePlayers', getPlayers(), 'game');
+	emitMessage(
+		ServerToClientEvent.UPDATE_GAME_STATE,
+		{ state: getPlayers() },
+		'game'
+	);
 }
 
 function physics(dt: number) {

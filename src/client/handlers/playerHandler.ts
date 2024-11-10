@@ -2,11 +2,8 @@ import { displayGame } from '..';
 import { BackendPlayers } from '../common/types';
 import { setAuthoritativeState } from '../controllers/PlayerController';
 
-export function handleUpdatePlayers(
-	playerStates: BackendPlayers,
-	backendTime: number
-): void {
-	setAuthoritativeState(playerStates, backendTime);
+export function handleUpdatePlayers(playerStates: BackendPlayers): void {
+	setAuthoritativeState(playerStates);
 }
 
 export interface setUsernameResponseInterface {
@@ -26,7 +23,7 @@ export function handleSetUsernameResponse(data: setUsernameResponseInterface) {
 	}
 
 	// save new player to player states
-	setAuthoritativeState(playerStates, backendTime);
+	setAuthoritativeState(playerStates);
 
 	// display the game instead of username input screen
 	displayGame();

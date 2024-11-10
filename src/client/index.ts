@@ -1,6 +1,7 @@
 import { emitMessage, setupSocket } from './helpers/socket';
 import { initializeGame } from './helpers/gameLogic';
 import { initializeEventListeners } from './helpers/eventListener';
+import { ClientToServerEvent } from './common/types';
 
 // setup socket connections and listen for server messages
 setupSocket();
@@ -38,7 +39,7 @@ function setUsername(e: SubmitEvent) {
 
 	if (userInput === '' || userInput === null) return;
 
-	emitMessage('validateUsername', { userInput });
+	emitMessage(ClientToServerEvent.VALIDATE_USERNAME, { userInput });
 }
 
 export function displayGame() {

@@ -15,11 +15,6 @@ import {
  */
 const frontendPlayers: Players = {};
 let backendPlayers: BackendPlayers = {};
-let backendTime: number = 0.0;
-
-export function getBackendTime(): number {
-	return backendTime;
-}
 
 export function addPlayer(playerId: string, player: Player): boolean {
 	if (frontendPlayers[playerId]) {
@@ -28,6 +23,7 @@ export function addPlayer(playerId: string, player: Player): boolean {
 	}
 	frontendPlayers[playerId] = player;
 	console.log(`Player with ID ${playerId} created.`);
+	console.log(frontendPlayers);
 	return true;
 }
 
@@ -59,10 +55,6 @@ export function getBackendPlayers(): BackendPlayers {
 }
 
 // executed on server broadcast
-export function setAuthoritativeState(
-	backendPlayerStates: BackendPlayers,
-	backendTime: number
-) {
+export function setAuthoritativeState(backendPlayerStates: BackendPlayers) {
 	backendPlayers = backendPlayerStates;
-	backendTime = backendTime;
 }

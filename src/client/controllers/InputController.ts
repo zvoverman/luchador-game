@@ -1,4 +1,9 @@
-import { InputQueue, PlayerInput, RawPlayerInput } from '../common/types';
+import {
+	ClientToServerEvent,
+	InputQueue,
+	PlayerInput,
+	RawPlayerInput,
+} from '../common/types';
 import { Player } from '../components/Player';
 import { emitMessage, socket } from '../helpers/socket';
 import { getPlayers } from './PlayerController';
@@ -58,7 +63,7 @@ export function processRawInputs(timestamp: number) {
 			timestamp: timestamp,
 		};
 		addInputToQueue(input);
-		emitMessage('sendInput', input);
+		emitMessage(ClientToServerEvent.PROCESS_CLIENT_INPUT, { input });
 	}
 	buffer = [];
 }
