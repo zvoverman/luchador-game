@@ -66,17 +66,20 @@ export class Player {
 
 		c.restore();
 
-		// Set font properties for the text
-		c.font = '16px Arial'; // Set the font size and family
-		c.fillStyle = '#000000'; // Set the text color
-		c.textAlign = 'center'; // Center align the text
+		// render username
+		c.font = '20px Arial';
+		c.textAlign = 'center';
 
-		// Calculate the position for the text above the sprite
-		const textX = this.position.x + this.width / 2; // Center the text above the sprite
-		const textY = this.position.y; // Position it directly above the sprite
+		const textX = this.position.x + this.width / 2;
+		const textY = this.position.y - 15;
 
-		// Draw the text above the sprite
-		c.fillText(this.username, textX, textY - 10); // Adjust '-10' to move text up or down
+		c.shadowColor = 'rgba(0, 0, 0, 0.2)';
+		c.shadowBlur = 2;
+		c.shadowOffsetX = 1;
+		c.shadowOffsetY = 1;
+
+		c.fillStyle = 'rgba(44, 62, 80, 0.8)';
+		c.fillText(this.username, textX, textY);
 
 		c.restore();
 	}

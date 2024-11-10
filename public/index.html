@@ -81,16 +81,17 @@
 			canvas {
 				width: 100%;
 				height: auto;
-				max-width: 1024px;
+				max-width: 1920px;
 				background-color: #f7f1e3;
 				border: 5px solid #c0392b;
 				box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
 				background-image: url('/assets/Ring.png');
 				background-size: contain;
+				background-repeat: no-repeat;
 				background-position: bottom center;
 				margin: auto;
 			}
-			@media (max-width: 1024px) {
+			@media (max-width: 1920px) {
 				canvas {
 					width: 90%; /* Responsive canvas width */
 				}
@@ -118,7 +119,7 @@
 
 		<!-- Game Screen -->
 		<div id="gameScreen">
-			<canvas id="game-canvas" width="1024" height="576"></canvas>
+			<canvas id="game-canvas" width="1920" height="576"></canvas>
 		</div>
 
 		<script src="/js/landing.js"></script>

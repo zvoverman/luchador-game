@@ -10,5 +10,5 @@ export const PLAYER_HEIGHT = 64;
 
 export const MAX_HEALTH = 3;
 
-export const CANVAS_WIDTH = 1024;
+export const CANVAS_WIDTH = 1920;
 export const CANVAS_HEIGHT = 576;

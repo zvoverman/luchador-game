@@ -72,7 +72,7 @@ export function handleValidateUsername(socket: Socket, input: any) {
 	emitMessage(
 		'setUsername',
 		{ username, state: getPlayers(), time: Date.now() },
-		'game'
+		socket.id
 	);
 }
 
