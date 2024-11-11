@@ -23,7 +23,6 @@ export function addPlayer(playerId: string, player: Player): boolean {
 	}
 	frontendPlayers[playerId] = player;
 	console.log(`Player with ID ${playerId} created.`);
-	console.log(frontendPlayers);
 	return true;
 }
 

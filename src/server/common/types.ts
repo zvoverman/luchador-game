@@ -76,3 +76,11 @@ export enum ClientToServerEvent {
 	PROCESS_CLIENT_INPUT = 'processClientInput',
 	VALIDATE_USERNAME = 'validateUsername',
 }
+
+export interface ProcessClientInputPayload {
+	input: PlayerInput;
+}
+
+export interface ValidateUsernamePayload {
+	userInput: string;
+}

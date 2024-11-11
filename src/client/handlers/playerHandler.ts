@@ -6,25 +6,11 @@ export function handleUpdatePlayers(playerStates: BackendPlayers): void {
 	setAuthoritativeState(playerStates);
 }
 
-export interface setUsernameResponseInterface {
-	username: string | null;
-	state: BackendPlayers;
-	time: number;
-}
-
-// TODO: Fix input validation here, data could be any?? test that prolly
-export function handleSetUsernameResponse(data: setUsernameResponseInterface) {
-	const playerUsername = data.username;
-	const playerStates: BackendPlayers = data.state;
-	const backendTime: number = data.time;
-
-	if (playerUsername) {
-		sessionStorage.setItem('username', playerUsername);
-	}
-
-	// save new player to player states
-	setAuthoritativeState(playerStates);
-
-	// display the game instead of username input screen
+export function handleSetUsernameResponse(
+	username: string,
+	gameState: BackendPlayers
+) {
+	sessionStorage.setItem('username', username);
+	setAuthoritativeState(gameState);
 	displayGame();
 }

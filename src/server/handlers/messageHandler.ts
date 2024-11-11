@@ -15,35 +15,7 @@ export function handleClientConnect(id: string) {
 	console.log('A user connected: ' + id);
 }
 
-// do not assume client input type
-export function handleClientInput(id: string, unfilteredInput: any) {
-	// check that input has necessary fields
-	if (!unfilteredInput.event || !unfilteredInput.timestamp) {
-		console.error('Invalid input');
-		return;
-	}
-
-	// check that necessary fields are of the correct type
-	const isEventValidType =
-		unfilteredInput.event === GameEvent.JUMP ||
-		unfilteredInput.event === GameEvent.RUN_LEFT ||
-		unfilteredInput.event === GameEvent.RUN_RIGHT ||
-		unfilteredInput.event === GameEvent.STOPPING;
-
-	const isTimestampValidType = typeof unfilteredInput.timestamp === 'number';
-
-	if (!isEventValidType || !isTimestampValidType) {
-		console.error('Input is of invalid type');
-		return;
-	}
-
-	const input: PlayerInput = {
-		id: null,
-		event: unfilteredInput.event,
-		timestamp: unfilteredInput.timestamp,
-	};
-
-	// add input to the queue
+export function handleClientInput(id: string, input: PlayerInput) {
 	const delay = FAKE_LAG ? LATENCY : 0;
 	setTimeout(() => {
 		input.id = id;
@@ -51,32 +23,22 @@ export function handleClientInput(id: string, unfilteredInput: any) {
 	}, delay);
 }
 
-export function handleValidateUsername(socket: Socket, input: any) {
-	const userInput = input.userInput;
+export function handleValidateUsername(
+	socket: Socket,
+	unfilteredUserInput: string
+): string | null {
+	const username = sanitizeUserInput(unfilteredUserInput);
 
-	// sanitize user input
-	const username = sanitizeUserInput(userInput);
-
-	// set new player's username
 	if (username != null && socket.id != null) {
-		// join game room
 		socket.join('game');
-
-		// add a new player
 		addPlayer(socket.id, username);
 	}
 
 	console.log(getPlayer(socket.id));
 
-	// send sanitized username back to client
-	emitMessage(
-		ServerToClientEvent.SET_USERNAME,
-		{ username, state: getPlayers(), time: Date.now() },
-		socket.id
-	);
+	return username;
 }
 
-// update players to reflect deleted backEndPlayer on client-side
 export function handleClientDisconnect(id: string, reason: DisconnectReason) {
 	console.log('User disconnected:', reason);
 	removePlayer(id);

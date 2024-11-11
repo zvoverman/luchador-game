@@ -12,7 +12,11 @@ import {
 	ServerToClientEvent,
 	ServerToClientEvents,
 	ClientToServerEvent,
+	GameEvent,
+	ProcessClientInputPayload,
+	ValidateUsernamePayload,
 } from './common/types';
+import { getPlayers } from './controllers/PlayerController';
 
 const io = new SocketIOServer();
 
@@ -27,14 +31,9 @@ export function setupSocket(server: Server) {
 	});
 
 	io.on('connection', (socket: Socket) => {
-		/**
-		 *   Initialization
-		 */
-
 		socketCount++;
 		handleClientConnect(socket.id);
 
-		// maximum number of players has been reached, disconnect any new socket connections
 		if (socketCount > MAX_CLIENT_CAPACITY) {
 			console.log('Maximum number of clients connected');
 			emitMessage(
@@ -51,25 +50,103 @@ export function setupSocket(server: Server) {
 
 		emitMessage(ServerToClientEvent.CONNECTED, {}, socket.id);
 
-		/**
-		 *   Socket Events from Client
-		 */
+		// Socket Events from Client
 
-		// recieve new inputs from client
-		socket.on(ClientToServerEvent.PROCESS_CLIENT_INPUT, (data: any) => {
-			// only handle client input if they have joined the 'game' room
+		socket.on(ClientToServerEvent.PROCESS_CLIENT_INPUT, (data: unknown) => {
 			if (!socket.rooms.has('game')) return;
 
-			const input: PlayerInput = data.input;
+			if (typeof data !== 'object' || data === null) {
+				console.error('Payload is not an object or is null', data);
+				return;
+			}
+
+			if (!('input' in data) || typeof (data as any).input !== 'object') {
+				console.error(
+					'Payload does not include necessary fields or input is malformed',
+					data
+				);
+				return;
+			}
+
+			const payload = data as ProcessClientInputPayload;
+
+			if (!payload.input.event || !payload.input.timestamp) {
+				console.error(
+					'Payload Client Input does not include necessary fields',
+					data
+				);
+				return;
+			}
+
+			const unfilteredInput = payload.input as PlayerInput;
+
+			const isEventValidType =
+				unfilteredInput.event === GameEvent.JUMP ||
+				unfilteredInput.event === GameEvent.RUN_LEFT ||
+				unfilteredInput.event === GameEvent.RUN_RIGHT ||
+				unfilteredInput.event === GameEvent.STOPPING;
+
+			const isTimestampValidType =
+				typeof unfilteredInput.timestamp === 'number';
+
+			if (!isEventValidType || !isTimestampValidType) {
+				console.error(
+					'Payload Client Input fields are of the wrong type',
+					data
+				);
+				return;
+			}
+
+			const input: PlayerInput = {
+				id: null,
+				event: unfilteredInput.event,
+				timestamp: unfilteredInput.timestamp,
+			};
+
 			handleClientInput(socket.id, input);
 		});
 
-		// validate client entered username
-		socket.on(ClientToServerEvent.VALIDATE_USERNAME, (input: any) => {
-			handleValidateUsername(socket, input);
-		});
+		socket.on(
+			ClientToServerEvent.VALIDATE_USERNAME,
+			(data: unknown, callback: Function) => {
+				if (typeof data !== 'object' || data === null) {
+					console.error('Payload is not an object or is null', data);
+					return;
+				}
 
-		// handle cleanup of client disconnect
+				if (
+					!('userInput' in data) ||
+					typeof (data as any).userInput !== 'string'
+				) {
+					console.error(
+						'Payload does not include necessary fields or input is malformed',
+						data
+					);
+					return;
+				}
+
+				const payload = data as ValidateUsernamePayload;
+
+				const unfilteredUserInput = payload.userInput;
+
+				// sanitize user inpupt and add player if username is valid
+				const username = handleValidateUsername(
+					socket,
+					unfilteredUserInput
+				);
+
+				if (callback) {
+					callback({
+						username,
+						state: getPlayers(),
+						time: Date.now(),
+					});
+				} else {
+					console.log('cannot ack', callback);
+				}
+			}
+		);
+
 		socket.on('disconnect', (reason: DisconnectReason) => {
 			socketCount--;
 			handleClientDisconnect(socket.id, reason);
@@ -78,11 +155,11 @@ export function setupSocket(server: Server) {
 }
 
 /**
- * Emits a message to clients
+ * Generalized function to emit events to clients
  *
- * @param eventName - name of socket event
- * @param data - json data to send to client
- * @param room - room to emit message to
+ * @param eventName - type of ServerToClientEvent
+ * @param data - ServerToClientEvent's associated payload type
+ * @param room - room to emit message to (optional param)
  */
 export function emitMessage<T extends ServerToClientEvent>(
 	eventName: T,

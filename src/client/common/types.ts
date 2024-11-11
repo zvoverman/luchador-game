@@ -80,3 +80,25 @@ export enum ServerToClientEvent {
 	CONNECTED = 'connected',
 	SET_USERNAME = 'setUsername',
 }
+
+export interface UpdateGameStatePayload {
+	state: BackendPlayers;
+}
+
+export interface ErrorPayload {
+	message: string;
+}
+
+export interface SetUsernamePayload {
+	username: string | null;
+	state: BackendPlayers;
+	time: number;
+}
+
+export interface RemovePlayerPayload {
+	playerToRemove: string; // playerId
+	state: BackendPlayers;
+	time: number;
+}
+
+export interface ConnectedPayload {}

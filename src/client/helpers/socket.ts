@@ -4,74 +4,96 @@ import {
 	handleSetUsernameResponse,
 } from '../handlers/playerHandler';
 import {
-	BackendPlayers,
 	ClientToServerEvent,
 	ClientToServerEvents,
+	ErrorPayload,
+	RemovePlayerPayload,
 	ServerToClientEvent,
+	SetUsernamePayload,
+	UpdateGameStatePayload,
 } from '../common/types';
 import { displayError, displayUsernameScreen } from '..';
 import {
 	removePlayer,
 	setAuthoritativeState,
 } from '../controllers/PlayerController';
-import { Server } from 'http';
 export let socket: Socket;
 
 export function setupSocket() {
 	socket = io();
 
-	socket.on(ServerToClientEvent.UPDATE_GAME_STATE, (data: any) => {
-		const playerStates: BackendPlayers = data.state;
-		handleUpdatePlayers(playerStates);
-	});
+	socket.on(
+		ServerToClientEvent.UPDATE_GAME_STATE,
+		(data: UpdateGameStatePayload) => {
+			handleUpdatePlayers(data.state);
+		}
+	);
 
-	socket.on(ServerToClientEvent.SET_USERNAME, (data: any) => {
-		handleSetUsernameResponse(data);
-	});
-
-	socket.on(ServerToClientEvent.ERROR, (err: any) => {
+	socket.on(ServerToClientEvent.ERROR, (err: ErrorPayload) => {
 		const errorMessage = err?.message || 'An error has occured';
-		console.log(errorMessage);
+		console.error(errorMessage);
 		displayError();
 	});
 
-	// TODO: type data and verify fields before calling functions
-	socket.on(ServerToClientEvent.REMOVE_PLAYER, (data: any) => {
-		const id = data?.playerToRemove;
-		const state = data?.state;
-		if (!id || !state) return;
-		removePlayer(id);
-		setAuthoritativeState(state);
-	});
+	socket.on(
+		ServerToClientEvent.REMOVE_PLAYER,
+		(data: RemovePlayerPayload) => {
+			if (!data.playerToRemove || !data.state) {
+				console.error('Could not remove player');
+			}
+			removePlayer(data.playerToRemove);
+			setAuthoritativeState(data.state);
+		}
+	);
 
+	// TODO: This is a weird way to verify connections.... there may be a better 'handshake' method
 	socket.on(ServerToClientEvent.CONNECTED, () => {
 		console.log('Socket set up successfully');
 
 		displayUsernameScreen();
 
-		// Load username from sessionStorage if available
+		// load username from sessionStorage if available and verify it is not malicious
 		const savedUsername = sessionStorage.getItem('username')?.trim();
-
-		// double check session storage isn't malicious
 		if (savedUsername) {
-			emitMessage(ClientToServerEvent.VALIDATE_USERNAME, {
-				userInput: savedUsername,
-			}); // FIXME: type all emit messages and socket.on to verify correct input/output is sent/received
-			console.log(
-				'username in sessionStorage available: ',
-				savedUsername
+			emitMessage(
+				ClientToServerEvent.VALIDATE_USERNAME,
+				{
+					userInput: savedUsername,
+				},
+				validateUsernameAck
 			);
+			console.log('username in sessionStorage available:', savedUsername);
 		}
 	});
 }
 
 export function emitMessage<T extends ClientToServerEvent>(
 	eventName: T,
-	data: ClientToServerEvents[T]
+	data: ClientToServerEvents[T],
+	callback?: (response: any) => void
 ) {
 	if (!socket || !socket.id) {
 		console.error('Socket is not initialized.', socket);
 		return;
 	}
-	socket.emit(eventName, data);
+
+	// emit the message with an optional acknowledgment callback
+	if (callback) {
+		const ackCallback = (response: any) => {
+			callback(response);
+		};
+
+		socket.emit(eventName, data, ackCallback);
+	} else {
+		socket.emit(eventName, data);
+	}
+}
+
+export function validateUsernameAck(response: SetUsernamePayload) {
+	if (!response.username) {
+		console.error('Username is invalid');
+		return;
+	}
+
+	handleSetUsernameResponse(response.username, response.state);
 }
