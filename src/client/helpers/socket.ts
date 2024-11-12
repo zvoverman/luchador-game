@@ -29,7 +29,7 @@ export function setupSocket() {
 		}
 	);
 
-	socket.on(ServerToClientEvent.ERROR, (err: ErrorPayload) => {
+	socket.on(ServerToClientEvent.CONNECTION_ERROR, (err: ErrorPayload) => {
 		const errorMessage = err?.message || 'An error has occured';
 		console.error(errorMessage);
 		displayError();
@@ -47,7 +47,7 @@ export function setupSocket() {
 	);
 
 	// TODO: This is a weird way to verify connections.... there may be a better 'handshake' method
-	socket.on(ServerToClientEvent.CONNECTED, () => {
+	socket.on(ServerToClientEvent.CONNECTION_SUCCESSFUL, () => {
 		console.log('Socket set up successfully');
 
 		displayUsernameScreen();

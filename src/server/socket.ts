@@ -37,7 +37,7 @@ export function setupSocket(server: Server) {
 		if (socketCount > MAX_CLIENT_CAPACITY) {
 			console.log('Maximum number of clients connected');
 			emitMessage(
-				ServerToClientEvent.ERROR, // TODO: ERROR and CONNECTED events should probably be the same -> CONNECTION_RESPONSE
+				ServerToClientEvent.CONNECTION_ERROR,
 				{
 					message: 'maximum number of players reached',
 				},
@@ -48,7 +48,7 @@ export function setupSocket(server: Server) {
 			socket.disconnect();
 		}
 
-		emitMessage(ServerToClientEvent.CONNECTED, {}, socket.id);
+		emitMessage(ServerToClientEvent.CONNECTION_SUCCESSFUL, {}, socket.id);
 
 		// Socket Events from Client
 

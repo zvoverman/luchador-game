@@ -1,9 +1,10 @@
 import { PLAYER_WIDTH, PLAYER_HEIGHT, MAX_HEALTH } from '../common/constants';
 import { PlayerColor } from '../common/types';
+import { Vector } from '../../lib/Vector';
 
 export class Player {
-	position: { x: number; y: number };
-	velocity: { x: number; y: number };
+	position: Vector;
+	velocity: Vector;
 	width: number;
 	height: number;
 	currentHealth: number;
@@ -13,13 +14,9 @@ export class Player {
 	image: HTMLImageElement;
 	username: string;
 
-	constructor(
-		position: { x: number; y: number },
-		playerColor: PlayerColor,
-		username: string
-	) {
+	constructor(position: Vector, playerColor: PlayerColor, username: string) {
 		this.position = position;
-		this.velocity = { x: 0, y: 0 };
+		this.velocity = new Vector(0, 0);
 		this.width = PLAYER_WIDTH;
 		this.height = PLAYER_HEIGHT;
 		this.currentHealth = MAX_HEALTH;
@@ -31,10 +28,22 @@ export class Player {
 		this.username = username;
 	}
 
+	setPosition(x: number, y: number) {
+		this.position.x = x;
+		this.position.y = y;
+	}
+
+	setVelocity(x: number, y: number) {
+		this.velocity.x = x;
+		this.velocity.y = y;
+	}
+
 	// drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
 	// source image - destination canvas
 	draw(c: CanvasRenderingContext2D): void {
 		c.save();
+
+		// TODO: Check if any of these checks can be replaced with vector magnitude
 
 		// determine direction based on movement or last direction
 		if (this.velocity.x > 0) {

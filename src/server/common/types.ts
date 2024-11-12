@@ -33,16 +33,16 @@ export enum GameEvent {
 export enum ServerToClientEvent {
 	UPDATE_GAME_STATE = 'updateGameState',
 	REMOVE_PLAYER = 'removePlayer',
-	ERROR = 'error',
-	CONNECTED = 'connected',
+	CONNECTION_ERROR = 'error',
+	CONNECTION_SUCCESSFUL = 'connected',
 	SET_USERNAME = 'setUsername',
 }
 
 export interface ServerToClientEvents {
 	[ServerToClientEvent.UPDATE_GAME_STATE]: UpdateGameStatePayload;
 	[ServerToClientEvent.REMOVE_PLAYER]: RemovePlayerPayload;
-	[ServerToClientEvent.ERROR]: ErrorPayload;
-	[ServerToClientEvent.CONNECTED]: ConnectedPayload;
+	[ServerToClientEvent.CONNECTION_ERROR]: ErrorPayload;
+	[ServerToClientEvent.CONNECTION_SUCCESSFUL]: ConnectedPayload;
 	[ServerToClientEvent.SET_USERNAME]: SetUsernamePayload;
 }
 

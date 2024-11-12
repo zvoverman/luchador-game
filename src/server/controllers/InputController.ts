@@ -1,3 +1,4 @@
+import { Vector } from '../../lib/Vector';
 import { JUMP_FORCE, SPEED } from '../common/constants';
 import { GameEvent, InputQueue, PlayerInput } from '../common/types';
 import { getPlayer } from './PlayerController';
@@ -24,28 +25,31 @@ export function processInputQueue(): void {
 		player.timestamp = input.timestamp;
 		player.timeSinceInput = 0;
 
-		const inputForce: { x?: number; y?: number } = {};
+		const newVelocity: Vector = new Vector(
+			player.velocity.x,
+			player.velocity.y
+		);
 
 		switch (input.event) {
 			case GameEvent.JUMP:
 				player.isJumping = true;
-				inputForce.y = -1.0 * JUMP_FORCE;
+				newVelocity.y = -1.0 * JUMP_FORCE;
 				break;
 			case GameEvent.RUN_LEFT:
 				player.isStopping = false;
-				inputForce.x = -1.0 * SPEED;
+				newVelocity.x = -1.0 * SPEED;
 				break;
 			case GameEvent.RUN_RIGHT:
 				player.isStopping = false;
-				inputForce.x = 1.0 * SPEED;
+				newVelocity.x = 1.0 * SPEED;
 				break;
 			case GameEvent.STOPPING:
 				// flag to add friction in physics
 				player.isStopping = true;
-				inputForce.x = player.velocity.x;
+				newVelocity.x = player.velocity.x;
 				break;
 		}
 
-		player.setVelocity(inputForce);
+		player.setVelocity(newVelocity.x, newVelocity.y);
 	}
 }

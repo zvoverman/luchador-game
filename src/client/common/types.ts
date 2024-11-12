@@ -1,3 +1,4 @@
+import { Vector } from '../../lib/Vector';
 import { Player } from '../components/Player';
 
 export interface Players {
@@ -10,8 +11,8 @@ export interface BackendPlayers {
 
 export type BackendPlayerState = {
 	id: string;
-	position: { x: number; y: number };
-	velocity: { x: number; y: number };
+	position: Vector;
+	velocity: Vector;
 	width: number;
 	height: number;
 	currentHealth: number;
@@ -76,8 +77,8 @@ export interface ValidateUsernamePayload {
 export enum ServerToClientEvent {
 	UPDATE_GAME_STATE = 'updateGameState',
 	REMOVE_PLAYER = 'removePlayer',
-	ERROR = 'error',
-	CONNECTED = 'connected',
+	CONNECTION_ERROR = 'error',
+	CONNECTION_SUCCESSFUL = 'connected',
 	SET_USERNAME = 'setUsername',
 }
 

@@ -14,17 +14,16 @@ import {
 	GROUND_FRICTION,
 } from '../common/constants';
 import {
-	addInputToBuffer,
 	consumeInputFromQueue,
 	eraseInputQueue,
 	getInputQueue,
 	getInputQueueLength,
-	peekInputQueue,
 	processRawInputs,
 } from '../controllers/InputController';
 import { Player } from '../components/Player';
 import { socket } from './socket';
 import { BackendPlayerState, GameEvent } from '../common/types';
+import { Vector } from '../../lib/Vector';
 
 let showDebug = false;
 let gameCanvas: GameCanvas;
@@ -60,17 +59,16 @@ export function updatePlayers(currentTimestamp: number): void {
 		let player = getPlayer(id);
 		if (!player) {
 			const newPlayer = new Player(
-				{ ...backendPlayer.position },
+				backendPlayer.position,
 				backendPlayer.playerColor,
 				backendPlayer.username
 			);
 			addPlayer(id, newPlayer);
 		} else {
 			if (id === socket.id) {
-				// ensure copies are assigned
-				// TODO: implement separate copy function
-				player.position = { ...backendPlayer.position };
-				player.velocity = { ...backendPlayer.velocity };
+				// TODO: implement set auth state function
+				player.position = backendPlayer.position;
+				player.velocity = backendPlayer.velocity;
 				player.username = backendPlayer.username;
 
 				if (toggleServerReconciliation) {
@@ -84,15 +82,15 @@ export function updatePlayers(currentTimestamp: number): void {
 					eraseInputQueue();
 				}
 			} else {
-				// ensure copies are assigned
-				player.position = { ...backendPlayer.position };
-				player.velocity = { ...backendPlayer.velocity };
+				player.position = backendPlayer.position;
+				player.velocity = backendPlayer.velocity;
 				player.username = backendPlayer.username;
 			}
 		}
 	}
 }
 
+// TODO: Do not set player position and velocity directly, lean on Vector math harder
 /**
  * Predicts client-side movement based on authoratative server state.
  *
@@ -210,8 +208,8 @@ function getDistanceFromTimespan(
 
 function movePlayer(player: Player, timestep: number, friction: number) {
 	// copy current player state
-	const initialVelocity = { ...player.velocity };
-	const initialPosition = { ...player.position };
+	const initialVelocity: Vector = player.velocity;
+	const initialPosition: Vector = player.position;
 
 	// calculate new player X position
 	const newPlayerPosition =
@@ -229,6 +227,7 @@ function movePlayer(player: Player, timestep: number, friction: number) {
 
 	// if friction has rolled over, override player X position
 	if (frictionDistance != null) {
+		player.setPosition;
 		player.position.x = initialPosition.x + frictionDistance;
 		player.velocity.x = 0.0;
 	} else {
@@ -310,9 +309,13 @@ function isFrictionOver(
 }
 
 /* RENDER */
+const DEBUG_DRAW_DELAY: number = 1;
+let timeSinceDebugDraw: number = 0;
+let fps: number = 0;
 function render(currentTime: number): void {
 	const deltaTime = (currentTime - lastRenderTime) / 1000;
 	lastRenderTime = currentTime;
+	timeSinceDebugDraw += deltaTime;
 
 	updateGameState(currentTime);
 
@@ -352,6 +355,14 @@ function render(currentTime: number): void {
 				'#ff0000af'
 			);
 		}
+	}
+
+	if (showDebug) {
+		if (timeSinceDebugDraw > DEBUG_DRAW_DELAY / 10) {
+			fps = Math.floor(1 / deltaTime);
+			timeSinceDebugDraw = 0;
+		}
+		showFPS(fps.toString());
 	}
 
 	requestAnimationFrame(render);
@@ -399,5 +410,20 @@ function velocityVectorDraw(
 	c.moveTo(x, y);
 	c.lineTo(target_x, target_y);
 	c.stroke();
+	c.restore();
+}
+
+function showFPS(fps: string) {
+	const c = gameCanvas.context;
+	c.save();
+	c.font = '32px Arial';
+	c.textAlign = 'center';
+
+	const textX = CANVAS_WIDTH - 24;
+	const textY = 32;
+
+	c.fillStyle = 'rgba(44, 62, 80)';
+	c.fillText(fps, textX, textY);
+
 	c.restore();
 }
