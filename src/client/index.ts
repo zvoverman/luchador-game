@@ -66,6 +66,11 @@ export function displayUsernameScreen() {
 	const usernameScreen = document.getElementById('usernameScreen');
 	if (usernameScreen != null) {
 		usernameScreen.style.display = 'block';
+
+		// cannot be accomplished with autofocus b/c this is a faux SPA
+		// and the username screen is not displayed on load
+		const formInput = document.getElementById('username');
+		formInput?.focus();
 	}
 }
 

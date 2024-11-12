@@ -67,8 +67,14 @@ export function updatePlayers(currentTimestamp: number): void {
 		} else {
 			if (id === socket.id) {
 				// TODO: implement set auth state function
-				player.position = backendPlayer.position;
-				player.velocity = backendPlayer.velocity;
+				player.setPosition(
+					backendPlayer.position.x,
+					backendPlayer.position.y
+				);
+				player.setVelocity(
+					backendPlayer.velocity.x,
+					backendPlayer.velocity.y
+				);
 				player.username = backendPlayer.username;
 
 				if (toggleServerReconciliation) {
@@ -82,8 +88,14 @@ export function updatePlayers(currentTimestamp: number): void {
 					eraseInputQueue();
 				}
 			} else {
-				player.position = backendPlayer.position;
-				player.velocity = backendPlayer.velocity;
+				player.setPosition(
+					backendPlayer.position.x,
+					backendPlayer.position.y
+				);
+				player.setVelocity(
+					backendPlayer.velocity.x,
+					backendPlayer.velocity.y
+				);
 				player.username = backendPlayer.username;
 			}
 		}
@@ -207,6 +219,22 @@ function getDistanceFromTimespan(
 }
 
 function movePlayer(player: Player, timestep: number, friction: number) {
+	movePlayerHorizontally(player, timestep, friction);
+	movePlayerVertically(player, timestep);
+}
+
+function movePlayerVertically(player: Player, timestep: number) {
+	player.position.y +=
+		timestep * (player.velocity.y + (timestep * GRAVITY_CONSTANT) / 2);
+	player.velocity.y += timestep * GRAVITY_CONSTANT;
+	checkGravity(player);
+}
+
+function movePlayerHorizontally(
+	player: Player,
+	timestep: number,
+	friction: number
+) {
 	// copy current player state
 	const initialVelocity: Vector = player.velocity;
 	const initialPosition: Vector = player.position;
@@ -235,23 +263,6 @@ function movePlayer(player: Player, timestep: number, friction: number) {
 		player.position.x = newPlayerPosition;
 		player.velocity.x = newPlayerVelocity;
 	}
-
-	// move player Y position
-	player.position.y +=
-		timestep * (player.velocity.y + (timestep * GRAVITY_CONSTANT) / 2);
-	player.velocity.y += timestep * GRAVITY_CONSTANT;
-
-	// check if player has hit the floor
-	checkGravity(player);
-}
-
-// moves player Y position
-// TODO: make movePlayerHorizontally() and call both in movePlayer()
-function movePlayerVertically(player: Player, timestep: number) {
-	player.position.y +=
-		timestep * (player.velocity.y + (timestep * GRAVITY_CONSTANT) / 2);
-	player.velocity.y += timestep * GRAVITY_CONSTANT;
-	checkGravity(player);
 }
 
 // checks if friction has rolled over and returns the distance travelled with friction in timestep
