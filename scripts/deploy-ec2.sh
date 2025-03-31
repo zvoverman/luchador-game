@@ -46,7 +46,7 @@ fi
 # Remove any surrounding quotes from INSTANCE_ID (if any)
 INSTANCE_ID=$(echo $INSTANCE_ID | tr -d '"')
 
-echo "Instance created with ID: $INSTANCE_ID"
+echo "Instance running with ID: $INSTANCE_ID"
 
 # Wait until the instance is running
 echo "Waiting for instance to enter 'running' state..."
@@ -71,6 +71,23 @@ echo "Instance is running. Public IPv4 is: $INSTANCE_PUBLIC_IP"
 LIGHT_CYAN='\033[1;36m'
 NC='\033[0m' # No Color
 echo -e "Go to ${LIGHT_CYAN}http://${INSTANCE_PUBLIC_IP}:3000${NC}\n"
+
+# update aws security group to allow only my IP when connecting via SSH 
+MY_IP=$(curl -s checkip.amazonaws.com)
+
+if ! aws ec2 describe-security-groups \
+    --group-ids $SECURITY_GROUP \
+    --query "SecurityGroups[0].IpPermissions[?FromPort==\`22\` && ToPort==\`22\` && IpRanges[?CidrIp==\`$MY_IP/32\`]].IpRanges" \
+    --output text | grep -q "$MY_IP"; then
+    aws ec2 authorize-security-group-ingress \
+        --group-id $SECURITY_GROUP \
+        --protocol tcp \
+        --port 22 \
+        --cidr $MY_IP/32
+else
+    echo "Rule already exists for $MY_IP/32."
+fi
+
 
 # Wait a bit for SSH to become available
 echo "Waiting for SSH to become available..."
