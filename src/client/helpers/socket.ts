@@ -46,7 +46,6 @@ export function setupSocket() {
 		}
 	);
 
-	// TODO: This is a weird way to verify connections.... there may be a better 'handshake' method
 	socket.on(ServerToClientEvent.CONNECTION_SUCCESSFUL, () => {
 		console.log('Socket set up successfully');
 

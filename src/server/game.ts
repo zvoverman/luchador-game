@@ -32,6 +32,7 @@ function physics(dt: number) {
 
 	for (const id in players) {
 		const player = players[id];
+		player.setStateVelocity();
 		player.applyForces(dt);
 		player.move(dt);
 	}

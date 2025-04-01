@@ -33,20 +33,24 @@ export function processInputQueue(): void {
 		switch (input.event) {
 			case GameEvent.JUMP:
 				player.isJumping = true;
+				// player.currentState = GameEvent.JUMP;
 				newVelocity.y = -1.0 * JUMP_FORCE;
 				break;
 			case GameEvent.RUN_LEFT:
 				player.isStopping = false;
-				newVelocity.x = -1.0 * SPEED;
+				player.currentState = GameEvent.RUN_LEFT;
+				// newVelocity.x = -1.0 * SPEED;
 				break;
 			case GameEvent.RUN_RIGHT:
 				player.isStopping = false;
-				newVelocity.x = 1.0 * SPEED;
+				player.currentState = GameEvent.RUN_RIGHT;
+				// newVelocity.x = 1.0 * SPEED;
 				break;
 			case GameEvent.STOPPING:
 				// flag to add friction in physics
 				player.isStopping = true;
-				newVelocity.x = player.velocity.x;
+				player.currentState = GameEvent.STOPPING;
+				// newVelocity.x = player.velocity.x;
 				break;
 		}
 

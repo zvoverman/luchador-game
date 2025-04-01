@@ -24,6 +24,7 @@ import { Player } from '../components/Player';
 import { socket } from './socket';
 import { BackendPlayerState, GameEvent } from '../common/types';
 import { Vector } from '../../lib/Vector';
+import { lerp } from '../common/helpers';
 
 let showDebug = false;
 let gameCanvas: GameCanvas;
@@ -152,19 +153,25 @@ function serverReconciliation(
 				timestep = 0;
 			}
 
-			// determine friction
-			switch (input.event) {
-				case GameEvent.STOPPING:
-					if (player.velocity.x > 0) {
-						friction = -GROUND_FRICTION;
-					} else {
-						friction = GROUND_FRICTION;
-					}
-					break;
-				default:
-					friction = 0;
-					break;
-			}
+			const xVelocity = lerp(
+				player.velocity.x,
+				1.0 * SPEED,
+				timestep * GROUND_FRICTION
+			);
+
+			// // determine friction
+			// switch (input.event) {
+			// 	case GameEvent.STOPPING:
+			// 		if (player.velocity.x > 0) {
+			// 			friction = -GROUND_FRICTION;
+			// 		} else {
+			// 			friction = GROUND_FRICTION;
+			// 		}
+			// 		break;
+			// 	default:
+			// 		friction = 0;
+			// 		break;
+			// }
 		} else {
 			/* backend player has not begun processing this input -> apply it from state start */
 
@@ -183,23 +190,32 @@ function serverReconciliation(
 			// determine friction
 			switch (input.event) {
 				case GameEvent.STOPPING:
-					if (player.velocity.x > 0) {
-						friction = -GROUND_FRICTION;
-					} else {
-						friction = GROUND_FRICTION;
-					}
+					// if (player.velocity.x > 0) {
+					// 	friction = -GROUND_FRICTION;
+					// } else {
+					// 	friction = GROUND_FRICTION;
+					// }
 					break;
 				case GameEvent.JUMP:
 					player.velocity.y = -JUMP_FORCE;
-					friction = 0;
+					// friction = 0;
 					break;
 				case GameEvent.RUN_RIGHT:
-					player.velocity.x = SPEED;
-					friction = 0;
+					player.velocity.x = lerp(
+						player.velocity.x,
+						1.0 * SPEED,
+						timestep * GROUND_FRICTION
+					);
+					// friction = 0;
 					break;
 				case GameEvent.RUN_LEFT:
-					player.velocity.x = -SPEED;
-					friction = 0;
+					player.velocity.x = lerp(
+						player.velocity.x,
+						-1.0 * SPEED,
+						timestep * GROUND_FRICTION
+					);
+					// player.velocity.x = -SPEED;
+					// friction = 0;
 					break;
 			}
 		}
@@ -242,27 +258,34 @@ function movePlayerHorizontally(
 	// calculate new player X position
 	const newPlayerPosition =
 		initialPosition.x +
-		timestep * (player.velocity.x + (timestep * friction) / 2);
-	const newPlayerVelocity = initialVelocity.x + timestep * friction;
-
-	// check if friction rolls over
-	const frictionDistance = checkFriction(
-		newPlayerVelocity,
-		initialVelocity.x,
-		timestep,
-		friction
+		timestep * (player.velocity.x + (timestep * GROUND_FRICTION) / 2);
+	const newPlayerVelocity = lerp(
+		player.velocity.x,
+		1.0 * SPEED,
+		timestep * GROUND_FRICTION
 	);
 
-	// if friction has rolled over, override player X position
-	if (frictionDistance != null) {
-		player.setPosition;
-		player.position.x = initialPosition.x + frictionDistance;
-		player.velocity.x = 0.0;
-	} else {
-		// else move player in the X direction
-		player.position.x = newPlayerPosition;
-		player.velocity.x = newPlayerVelocity;
-	}
+	player.position.x = newPlayerPosition;
+	player.velocity.x = newPlayerVelocity;
+
+	// // check if friction rolls over
+	// const frictionDistance = checkFriction(
+	// 	newPlayerVelocity,
+	// 	initialVelocity.x,
+	// 	timestep,
+	// 	friction
+	// );
+
+	// // if friction has rolled over, override player X position
+	// if (frictionDistance != null) {
+	// 	player.setPosition;
+	// 	player.position.x = initialPosition.x + frictionDistance;
+	// 	player.velocity.x = 0.0;
+	// } else {
+	// 	// else move player in the X direction
+	// 	player.position.x = newPlayerPosition;
+	// 	player.velocity.x = newPlayerVelocity;
+	// }
 }
 
 // checks if friction has rolled over and returns the distance travelled with friction in timestep

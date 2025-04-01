@@ -7,10 +7,13 @@ import {
 	GROUND_FRICTION,
 	GRAVITY_CONSTANT,
 	AIR_FRICTION,
+	JUMP_FORCE,
+	SPEED,
 } from './constants';
-import { PlayerColor } from './types';
-import { randNumberInRange } from './helpers';
+import { GameEvent, PlayerColor } from './types';
+import { lerp, randNumberInRange } from './helpers';
 import { Vector } from '../../lib/Vector';
+import { getPlayers } from '../controllers/PlayerController';
 
 export class Player {
 	id: string;
@@ -27,6 +30,8 @@ export class Player {
 
 	timestamp: number;
 	timeSinceInput: number;
+
+	currentState: GameEvent;
 
 	constructor(id: string, username: string) {
 		this.id = id;
@@ -46,6 +51,8 @@ export class Player {
 
 		this.timestamp = 0;
 		this.timeSinceInput = 0;
+
+		this.currentState = GameEvent.STOPPING;
 	}
 
 	setPosition(x: number, y: number) {
@@ -58,14 +65,41 @@ export class Player {
 		this.velocity.y = y;
 	}
 
+	public setStateVelocity() {
+		const newVelocity: Vector = new Vector(
+			this.velocity.x,
+			this.velocity.y
+		);
+
+		switch (this.currentState) {
+			case GameEvent.JUMP:
+				newVelocity.y = -1.0 * JUMP_FORCE;
+				break;
+			case GameEvent.RUN_LEFT:
+				newVelocity.x = lerp(this.velocity.x, -1.0 * SPEED, 0.3);
+				break;
+			case GameEvent.RUN_RIGHT:
+				newVelocity.x = lerp(this.velocity.x, 1.0 * SPEED, 0.3);
+				break;
+			case GameEvent.STOPPING:
+				const currentFriction = this.isJumping
+					? AIR_FRICTION
+					: GROUND_FRICTION;
+				newVelocity.x = lerp(this.velocity.x, 0, currentFriction);
+				break;
+		}
+
+		this.setVelocity(newVelocity.x, newVelocity.y);
+	}
+
 	public applyForces(deltaTime: number) {
 		if (this.isJumping) {
 			this.applyGravity(deltaTime);
 		}
 
-		if (this.isStopping) {
-			this.applyFriction(deltaTime);
-		}
+		// if (this.isStopping) {
+		// 	this.applyFriction(deltaTime);
+		// }
 	}
 
 	private applyGravity(deltaTime: number) {
@@ -108,11 +142,78 @@ export class Player {
 		}
 	}
 
-	move(deltaTime: number) {
+	public move(deltaTime: number) {
 		this.timeSinceInput += deltaTime;
 
 		const newXPos = this.position.x + this.velocity.x * deltaTime;
 		const newYPos = this.position.y + this.velocity.y * deltaTime;
+
+		// const newPosition = new Vector(newXPos, newYPos);
+
 		this.setPosition(newXPos, newYPos);
+
+		if (this.checkCollisions()) {
+			console.log('Collision resolved!');
+		}
+	}
+
+	resolveCollision(player: Player): void {
+		const overlapX = Math.min(
+			this.position.x + this.width - player.position.x,
+			player.position.x + player.width - this.position.x
+		);
+		const overlapY = Math.min(
+			this.position.y + this.height - player.position.y,
+			player.position.y + player.height - this.position.y
+		);
+
+		if (overlapX < overlapY) {
+			// Horizontal collision
+			if (this.position.x < player.position.x) {
+				// Collided with the left side
+				this.position.x = player.position.x - this.width;
+			} else {
+				// Collided with the right side
+				this.position.x = player.position.x + player.width;
+			}
+			this.velocity.x = 0; // Stop horizontal movement
+		} else {
+			// Vertical collision
+			if (this.position.y < player.position.y) {
+				// Collided with the top
+				this.position.y = player.position.y - this.height;
+			} else {
+				// Collided with the bottom
+				this.position.y = player.position.y + player.height;
+			}
+			this.velocity.y = 0; // Stop vertical movement
+		}
+	}
+
+	checkCollisions(): boolean {
+		const players = getPlayers(); // Assuming `getPlayers()` retrieves all players
+
+		for (const id in players) {
+			const player = players[id];
+
+			// Skip self
+			if (player.id === this.id) continue;
+
+			if (this.isColliding(player)) {
+				this.resolveCollision(player);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	isColliding(player: Player): boolean {
+		return (
+			this.position.x < player.position.x + player.width &&
+			this.position.x + this.width > player.position.x &&
+			this.position.y < player.position.y + player.height &&
+			this.position.y + this.height > player.position.y
+		);
 	}
 }
